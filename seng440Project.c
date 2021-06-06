@@ -25,7 +25,7 @@ int FloatToInt(float f)
  */
 static float fastsin(float n)
 {
-    float f = n * HALF_MAX_CIRCLE_ANGLE_DIV_PI;
+    float f = n * HALF_MAX_CIRCLE_ANGLE / M_PI;
     int i = FloatToInt(f);
 
     if (i < 0)
@@ -86,6 +86,64 @@ int calcConversionFactor(int min, int max)
     return conversionFactor;
 }
 
+float fastArcTan(float arg, int factor)
+{
+
+    int x = arg * factor;
+    int min = 0.5 * factor;
+    int max = 1.0 * factor;
+
+    printf("x: %d, min: %d, max: %d\n", x, min, max);
+    float angle = 0;
+    if (x > min && x <= max)
+    {
+        angle = ((int)(0.644 * factor)) * x + ((int)(0.142 * factor));
+    }
+
+    if (x >= -min && x <= min)
+    {
+        angle = ((int)(0.928 * factor)) * x;
+    }
+
+    if (x < -min && x >= -max)
+    {
+        angle = ((int)(0.644 * factor)) * x - ((int)(0.142 * factor));
+    }
+
+    return angle / (128 * 128); //remove this after we figure out scaling
+}
+
+float arctanFast(int x, int y, int factor) // return float value of arctan (currently not using scale factor)
+{
+    float angle;
+    float arg;
+    if (x > y)
+    {
+        arg = (float)y / (float)x;
+        angle = fastArcTan(arg, factor);
+    }
+    else
+    {
+        arg = (float)x / (float)y;
+        angle = M_PI / 2 - fastArcTan(arg, factor);
+        ;
+    }
+}
+
+float getThetaR(float thetaSum, float thetaDiff)
+{
+    // See page 8
+    return 0;
+}
+
+float getThetaL(float thetaSum, float thetaDiff)
+{
+
+    //  see page 8
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -101,4 +159,7 @@ int main(int argc, char *argv[])
     float max = get_max();
     int conversionFactor = calcConversionFactor(min, max);
     printf("min: %f, max: %f, conversion factor is: %d\n", min, max, conversionFactor);
+
+    float arctanTest = arctanFast(1, 2, conversionFactor);
+    printf("arctan() = %.2f\n", arctanTest);
 }
