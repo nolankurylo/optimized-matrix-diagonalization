@@ -2,7 +2,7 @@
 
 int min_range, max_range;
 
-float test_matrix[matrix_size][matrix_size];
+float test_matrix[matrix_size][matrix_size] = {31, 77, -11, 26, -42, 14, 79, -53, -68, -10, 45, 90, 34, 16, 38, -19};
 
 void gen_test_matrix()
 {

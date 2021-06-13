@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define matrix_size 5
+#define matrix_size 4
 
 // Prototype functions
 void gen_test_matrix(void);

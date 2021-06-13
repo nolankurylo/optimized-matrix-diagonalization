@@ -57,13 +57,6 @@ static float fastcos(float n)
     }
 }
 
-static float arctan(float n)
-{
-    if (n > 0.5 && n < 1)
-    {
-    }
-}
-
 int calcConversionFactor(int min, int max)
 {
     int closestPow2Min = pow(2, ceil(log(abs(min)) / log(2)));
@@ -93,55 +86,137 @@ float fastArcTan(float arg, int factor)
     int min = 0.5 * factor;
     int max = 1.0 * factor;
 
-    printf("x: %d, min: %d, max: %d\n", x, min, max);
+    // printf("x is %d \n", x);
+    // printf("min is %d \n", min);
+    // printf("max is %d \n", max);
     float angle = 0;
     if (x > min && x <= max)
     {
         angle = ((int)(0.644 * factor)) * x + ((int)(0.142 * factor));
     }
 
-    if (x >= -min && x <= min)
+    else if (x >= -min && x <= min)
     {
         angle = ((int)(0.928 * factor)) * x;
     }
 
-    if (x < -min && x >= -max)
+    else if (x < -min && x >= -max)
     {
         angle = ((int)(0.644 * factor)) * x - ((int)(0.142 * factor));
     }
+    else
+    {
+        printf("edge\n", angle);
+    }
 
-    return angle / (128 * 128); //remove this after we figure out scaling
+    return angle / (factor * factor); //remove this after we figure out scaling
 }
 
-float arctanFast(int x, int y, int factor) // return float value of arctan (currently not using scale factor)
+float newArctan(float x, float y, int factor) // return float value of arctan (currently not using scale factor)
 {
-    float angle;
+    float angle = 0;
     float arg;
-    if (x > y)
+    x = 0.4;
+    y = -0.1;
+    float abs_x = x;
+    float abs_y = y;
+    if (x < 0)
     {
-        arg = (float)y / (float)x;
-        angle = fastArcTan(arg, factor);
+        abs_x = x * -1;
+    }
+    if (y < 0)
+    {
+        abs_y = y * -1;
+    }
+
+    printf("x/y should be: %.2f\n", x / y);
+
+    // x = 4;
+    // y = -2;
+    if (abs_x > abs_y)
+    {
+
+        arg = y / x;
+
+        printf("Arg in first if is: %.2f\n", arg);
+        if (arg < 0)
+        {
+            angle = -(fastArcTan(arg, factor) + (M_PI / 2));
+        }
+        else
+        {
+            angle = (M_PI / 2) - fastArcTan(arg, factor);
+        }
     }
     else
     {
-        arg = (float)x / (float)y;
-        angle = M_PI / 2 - fastArcTan(arg, factor);
-        ;
+        arg = x / y;
+        printf("Arg in second if is: %.2f\n", arg);
+        angle = fastArcTan(arg, factor);
     }
+    printf("Angle is %.2f\n", angle);
+
+    // if (x > 0)
+    // {
+    //     printf("%.2f\n", arg);
+    //     arg = y / x;
+    //     angle = fastArcTan(arg, factor);
+    // }
+    // else if (x < 0 && y >= 0)
+    // {
+    //     arg = y / x;
+    //     angle = fastArcTan(arg, factor) + M_PI;
+    // }
+    // else if (x < 0 && y < 0)
+    // {
+    //     arg = y / x;
+    //     angle = fastArcTan(arg, factor) - M_PI;
+    // }
+    // else if (x == 0 && y > 0)
+    // {
+    //     return M_PI / 2;
+    // }
+    // else if (x == 0 && y < 0)
+    // {
+    //     return -M_PI / 2;
+    // }
+    // printf("angleif == %.2f\n", angle);
+
+    return angle;
 }
 
 float getThetaR(float thetaSum, float thetaDiff)
 {
-    // See page 8
-    return 0;
+    float thetaR2 = thetaSum + thetaDiff;
+
+    return thetaR2 / 2;
 }
 
 float getThetaL(float thetaSum, float thetaDiff)
 {
 
-    //  see page 8
+    float thetaL2 = thetaSum - thetaDiff;
 
-    return 0;
+    return thetaL2 / 2;
+}
+
+float getThetaSum(float subMatrix[4][4], int conversionFactor)
+{
+    float x = subMatrix[0][1] + subMatrix[1][0];
+    float y = subMatrix[1][1] - subMatrix[0][0];
+    float thetaSum = newArctan(x, y, conversionFactor);
+    return thetaSum;
+}
+
+float getThetaDiff(float subMatrix[4][4], int conversionFactor)
+{
+
+    float x = subMatrix[1][0] - subMatrix[0][1];
+    float y = subMatrix[1][1] + subMatrix[0][0];
+
+    float thetaDiff = newArctan(x, y, conversionFactor);
+    printf("diff = %.2f\n", thetaDiff);
+    return thetaDiff;
 }
 
 int main(int argc, char *argv[])
@@ -153,13 +228,16 @@ int main(int argc, char *argv[])
         fast_cossin_table[i] = (float)sin((double)i * M_PI / HALF_MAX_CIRCLE_ANGLE);
     }
 
-    gen_test_matrix();
     print_matrix();
     float min = get_min();
     float max = get_max();
     int conversionFactor = calcConversionFactor(min, max);
     printf("min: %f, max: %f, conversion factor is: %d\n", min, max, conversionFactor);
 
-    float arctanTest = arctanFast(1, 2, conversionFactor);
-    printf("arctan() = %.2f\n", arctanTest);
+    float thetaDiff = getThetaDiff(test_matrix, conversionFactor);
+    float thetaSum = getThetaSum(test_matrix, conversionFactor);
+    float L = getThetaL(thetaSum, thetaDiff);
+    float R = getThetaR(thetaSum, thetaDiff);
+    printf("Sum = %.2f, Diff= %.2f\n", thetaSum, thetaDiff);
+    printf("L = %.2f, R= %.2f\n", L, R);
 }
