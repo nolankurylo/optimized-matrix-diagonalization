@@ -8,25 +8,30 @@
 #define HALF_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE / 2)
 #define QUARTER_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE / 4)
 #define MASK_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE - 1)
-#define HALF_MAX_CIRCLE_ANGLE_DIV_PI (HALF_MAX_CIRCLE_ANGLE / M_PI)
 
 float fast_cossin_table[MAX_CIRCLE_ANGLE];
 
 float test_matrix[matrix_size][matrix_size];
 
-int FloatToInt(float f)
+int FloatToIntTruncate(float f)
 {
     return (int)f;
 }
 /**
  * Fast sin computation using the fast cossin table
+ * Works between pi and -pi
  * https://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
- * 
+ * @param n Input angle that is scaled by the scale factor
+ * @param factor Scale factor for the problem space. If not using scale factor, use scale factor 1.
  */
-static float fastsin(float n)
+static float fastsin(float n, int factor)
 {
-    float f = n * HALF_MAX_CIRCLE_ANGLE / M_PI;
-    int i = FloatToInt(f);
+    int adjustedFactor = HALF_MAX_CIRCLE_ANGLE / factor;
+
+    printf("the adjusted factor is: %d", adjustedFactor);
+
+    float f = n * adjustedFactor / M_PI;
+    int i = FloatToIntTruncate(f);
 
     if (i < 0)
     {
@@ -41,11 +46,14 @@ static float fastsin(float n)
 /**
  * Fast cos computation using the fast cossin table
  * https://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
+ * @param n Input angle that is scaled by the scale factor
+ * @param factor Scale factor for the problem space. If not using scale factor, use scale factor 1.
  */
-static float fastcos(float n)
+static float fastcos(float n, int factor)
 {
-    float f = n * HALF_MAX_CIRCLE_ANGLE_DIV_PI;
-    int i = FloatToInt(f);
+    int adjustedFactor = HALF_MAX_CIRCLE_ANGLE / factor;
+    float f = n * adjustedFactor / M_PI;
+    int i = FloatToIntTruncate(f);
 
     if (i < 0)
     {
@@ -156,32 +164,6 @@ float newArctan(float x, float y, int factor) // return float value of arctan (c
     }
     printf("Angle is %.2f\n", angle);
 
-    // if (x > 0)
-    // {
-    //     printf("%.2f\n", arg);
-    //     arg = y / x;
-    //     angle = fastArcTan(arg, factor);
-    // }
-    // else if (x < 0 && y >= 0)
-    // {
-    //     arg = y / x;
-    //     angle = fastArcTan(arg, factor) + M_PI;
-    // }
-    // else if (x < 0 && y < 0)
-    // {
-    //     arg = y / x;
-    //     angle = fastArcTan(arg, factor) - M_PI;
-    // }
-    // else if (x == 0 && y > 0)
-    // {
-    //     return M_PI / 2;
-    // }
-    // else if (x == 0 && y < 0)
-    // {
-    //     return -M_PI / 2;
-    // }
-    // printf("angleif == %.2f\n", angle);
-
     return angle;
 }
 
@@ -238,6 +220,7 @@ int main(int argc, char *argv[])
     float thetaSum = getThetaSum(test_matrix, conversionFactor);
     float L = getThetaL(thetaSum, thetaDiff);
     float R = getThetaR(thetaSum, thetaDiff);
+
     printf("Sum = %.2f, Diff= %.2f\n", thetaSum, thetaDiff);
     printf("L = %.2f, R= %.2f\n", L, R);
 }
