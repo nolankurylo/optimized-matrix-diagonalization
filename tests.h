@@ -8,6 +8,8 @@
 // Prototype functions
 void gen_test_matrix(void);
 
+void gen_identity_matrix(float[4][4]);
+
 void print_matrix(void);
 
 float get_min(void);

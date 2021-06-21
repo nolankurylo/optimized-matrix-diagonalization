@@ -219,20 +219,82 @@ void getRMatrixT(float thetaR, float R[2][2])
     R[1][1] = fastcos(thetaR, 1);
 }
 
-void matrixMultiply(float X[2][2], float Y[2][2], float newM[2][2])
+void matrixMultiply(float X[4][4], float Y[4][4], float newM[4][4])
 {
     // this is the "slow" method, can look into using arm NEON but that shit is cryptic as fuck
     // Will want to change this to 4x4 matrices to accomodate the V and U instead
 
-    for (int i = 0; i < 2; i++)
+    int n = 4; // for a nxn matrix
+
+    for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < 2; j++)
+        for (int j = 0; j < n; j++)
         {
             newM[i][j] = 0;
-            for (int k = 0; k < 2; k++)
+            for (int k = 0; k < n; k++)
                 newM[i][j] += X[i][k] * Y[k][j];
         }
     }
+}
+// i col_idx, j row_idx (i=0, j=1 for pair (1-2))
+void sweep(int col_idx, int row_idx, int conversionFactor)
+{
+
+    int i, j, k;
+    float M_iteration[2][2];
+    M_iteration[0][0] = test_matrix[row_idx][row_idx];
+    M_iteration[0][1] = test_matrix[row_idx][col_idx];
+    M_iteration[1][0] = test_matrix[col_idx][row_idx];
+    M_iteration[1][1] = test_matrix[col_idx][col_idx];
+
+    float thetaDiff = getThetaDiff(M_iteration, conversionFactor);
+    float thetaSum = getThetaSum(M_iteration, conversionFactor);
+
+    float thetaL = getThetaL(thetaSum, thetaDiff);
+    float thetaR = getThetaR(thetaSum, thetaDiff);
+
+    float R_iteration[2][2]; //Will want to make into U and 4x4
+    float L_iteration[2][2];
+
+    getLMatrix(thetaL, L_iteration);
+    getRMatrixT(thetaR, R_iteration);
+
+    //Get rotation matrices
+    float U_iteration[4][4];
+    float V_iteration[4][4];
+    gen_identity_matrix(U_iteration); //Will want to make into V and 4x4
+    gen_identity_matrix(V_iteration);
+    U_iteration[row_idx][row_idx] = L_iteration[0][0];
+    U_iteration[row_idx][col_idx] = L_iteration[0][1];
+    U_iteration[col_idx][row_idx] = L_iteration[1][0];
+    U_iteration[col_idx][col_idx] = L_iteration[1][1];
+    V_iteration[row_idx][row_idx] = R_iteration[0][0];
+    V_iteration[row_idx][col_idx] = R_iteration[0][1];
+    V_iteration[col_idx][row_idx] = R_iteration[1][0];
+    V_iteration[col_idx][col_idx] = R_iteration[1][1];
+
+    float new_M_iteration[4][4];
+    matrixMultiply(U_iteration, test_matrix, new_M_iteration);
+    matrixMultiply(new_M_iteration, V_iteration, test_matrix);
+
+    // printf("MATRIX M FINAL:\n");
+    // for (i = 0; i < 2; i++)
+    // {
+    //     for (j = 0; j < 2; j++)
+    //     {
+    //         printf("%f ", M_iteration[i][j]);
+    //         if (j == 2 - 1)
+    //         {
+    //             printf("\n");
+    //         }
+    //     }
+    // }
+
+    // test_matrix[row_idx][row_idx] = M_iteration[0][0];
+    // test_matrix[row_idx][col_idx] = 0; //M_iteration[0][1];
+    // test_matrix[col_idx][row_idx] = 0; //M_iteration[1][0];
+    // test_matrix[col_idx][col_idx] = M_iteration[1][1];
+    // print_matrix();
 }
 
 int main(int argc, char *argv[])
@@ -252,82 +314,93 @@ int main(int argc, char *argv[])
 
     // Doing a mock run of the first iteration in first sweep
 
-    float M[2][2];
+    float M_iteration[2][2];
 
     //Change these variable names to be unique
     k = 0; // would be sweep number
     i = 0; // would be outer loop variable, go to testMatrix.length -1
     j = 1; // inner loop variable, would start at i +1 and go to testMatrix.length-1
 
-    M[0][0] = test_matrix[i][i];
-    M[0][1] = test_matrix[i][j];
-    M[1][0] = test_matrix[j][i];
-    M[1][1] = test_matrix[j][j];
+    // // pair is selected
+    // M_iteration[0][0] = test_matrix[i][i];
+    // M_iteration[0][1] = test_matrix[i][j];
+    // M_iteration[1][0] = test_matrix[j][i];
+    // M_iteration[1][1] = test_matrix[j][j];
 
-    printf("\n\nMATRIX M:\n");
-    for (i = 0; i < 2; i++)
+    // printf("\n\nMATRIX M:\n");
+    // float thetaDiff = getThetaDiff(M_iteration, conversionFactor);
+    // float thetaSum = getThetaSum(M_iteration, conversionFactor);
+
+    // float thetaL = getThetaL(thetaSum, thetaDiff);
+    // float thetaR = getThetaR(thetaSum, thetaDiff);
+
+    // //Get rotation matrices
+    // float L[2][2]; //Will want to make into V and 4x4
+    // float R[2][2]; //Will want to make into U and 4x4
+
+    // get rotation parameters
+
+    // float newM[2][2];
+    // getLMatrix(thetaL, L);
+    // getRMatrixT(thetaR, R);
+
+    // printf("\n\nMATRIX L:\n");
+    // for (i = 0; i < 2; i++)
+    // {
+    //     for (j = 0; j < 2; j++)
+    //     {
+    //         printf("%f ", L[i][j]);
+    //         if (j == 2 - 1)
+    //         {
+    //             printf("\n");
+    //         }
+    //     }
+    // }
+    // printf("MATRIX R:\n");
+    // for (i = 0; i < 2; i++)
+    // {
+    //     for (j = 0; j < 2; j++)
+    //     {
+    //         printf("%f ", R[i][j]);
+    //         if (j == 2 - 1)
+    //         {
+    //             printf("\n");
+    //         }
+    //     }
+    // }
+
+    // //Apply rotations to M
+    // matrixMultiply(L, M_iteration, newM);
+    // matrixMultiply(newM, R, M_iteration);
+
+    // printf("MATRIX M FINAL:\n");
+    // for (i = 0; i < 2; i++)
+    // {
+    //     for (j = 0; j < 2; j++)
+    //     {
+    //         printf("%f ", M_iteration[i][j]);
+    //         if (j == 2 - 1)
+    //         {
+    //             printf("\n");
+    //         }
+    //     }
+    // }
+    for (int k = 0; k < 5; k++)
     {
-        for (j = 0; j < 2; j++)
+        for (j = 0; j < 3; j++)
         {
-            printf("%.2f ", M[i][j]);
-            if (j == 2 - 1)
+            for (i = j + 1; i < 4; i++)
             {
-                printf("\n");
+
+                sweep(i, j, conversionFactor);
+                printf("%d - %d\n", j + 1, i + 1);
+                print_matrix();
             }
         }
     }
-    // get rotation
-    float thetaDiff = getThetaDiff(M, conversionFactor);
-    float thetaSum = getThetaSum(M, conversionFactor);
 
-    float thetaL = getThetaL(thetaSum, thetaDiff);
-    float thetaR = getThetaR(thetaSum, thetaDiff);
+    // sweep(1, 0, conversionFactor);
 
-    //do rotation
-    float L[2][2]; //Will want to make into V and 4x4
-    float R[2][2]; //Will want to make into U and 4x4
-    float newM[2][2];
-    getLMatrix(thetaL, L);
-    getRMatrixT(thetaR, R);
-    printf("\n\nMATRIX L:\n");
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 2; j++)
-        {
-            printf("%f ", L[i][j]);
-            if (j == 2 - 1)
-            {
-                printf("\n");
-            }
-        }
-    }
-    printf("MATRIX R:\n");
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 2; j++)
-        {
-            printf("%f ", R[i][j]);
-            if (j == 2 - 1)
-            {
-                printf("\n");
-            }
-        }
-    }
-    matrixMultiply(L, M, newM);
-
-    matrixMultiply(newM, R, M);
-    printf("MATRIX M FINAL:\n");
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 2; j++)
-        {
-            printf("%f ", M[i][j]);
-            if (j == 2 - 1)
-            {
-                printf("\n");
-            }
-        }
-    }
     // So this gets us the correct value for M but as seen in the documentation we are gona make L and R into V12 and U12.
     // Once we figure out the process for U and V, we should be just about ready to start the optimization.
 }

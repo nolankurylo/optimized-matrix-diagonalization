@@ -19,6 +19,25 @@ void gen_test_matrix()
     }
 }
 
+void gen_identity_matrix(float identity[4][4])
+{
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (j == i)
+            {
+                identity[j][i] = 1;
+            }
+            else
+            {
+                identity[j][i] = 0;
+            }
+        }
+    }
+}
+
 float get_max()
 {
     float max = test_matrix[0][0];
