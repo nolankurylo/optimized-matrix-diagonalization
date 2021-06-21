@@ -2,7 +2,7 @@
 
 int min_range, max_range;
 
-float test_matrix[matrix_size][matrix_size] = {31, 77, -11, 26, -42, 14, 79, -53, -68, -10, 45, 90, 34, 16, 38, -19};
+float M[matrix_size][matrix_size] = {31, 77, -11, 26, -42, 14, 79, -53, -68, -10, 45, 90, 34, 16, 38, -19};
 
 void gen_test_matrix()
 {
@@ -14,7 +14,7 @@ void gen_test_matrix()
         {
             float x = max * ((float)rand() / (float)RAND_MAX - 0.5);
 
-            test_matrix[i][j] = x;
+            M[i][j] = x;
         }
     }
 }
@@ -40,15 +40,15 @@ void gen_identity_matrix(float identity[4][4])
 
 float get_max()
 {
-    float max = test_matrix[0][0];
+    float max = M[0][0];
 
     for (int i = 0; i < matrix_size; i++)
     {
         for (int j = 0; j < matrix_size; j++)
         {
-            if (max < test_matrix[i][j])
+            if (max < M[i][j])
             {
-                max = test_matrix[i][j];
+                max = M[i][j];
             }
         }
     }
@@ -57,15 +57,15 @@ float get_max()
 
 float get_min()
 {
-    float min = test_matrix[0][0];
+    float min = M[0][0];
 
     for (int i = 0; i < matrix_size; i++)
     {
         for (int j = 0; j < matrix_size; j++)
         {
-            if (min > test_matrix[i][j])
+            if (min > M[i][j])
             {
-                min = test_matrix[i][j];
+                min = M[i][j];
             }
         }
     }
@@ -80,7 +80,7 @@ void print_matrix()
     {
         for (int j = 0; j < matrix_size; j++)
         {
-            printf("%f ", test_matrix[i][j]);
+            printf("%f ", M[i][j]);
             if (j == matrix_size - 1)
             {
                 printf("\n");

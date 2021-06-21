@@ -11,7 +11,7 @@
 
 float fast_cossin_table[MAX_CIRCLE_ANGLE];
 
-float test_matrix[matrix_size][matrix_size];
+float M[matrix_size][matrix_size];
 
 int FloatToIntTruncate(float f)
 {
@@ -242,10 +242,10 @@ void sweep(int col_idx, int row_idx, int conversionFactor)
 
     int i, j, k;
     float M_iteration[2][2];
-    M_iteration[0][0] = test_matrix[row_idx][row_idx];
-    M_iteration[0][1] = test_matrix[row_idx][col_idx];
-    M_iteration[1][0] = test_matrix[col_idx][row_idx];
-    M_iteration[1][1] = test_matrix[col_idx][col_idx];
+    M_iteration[0][0] = M[row_idx][row_idx];
+    M_iteration[0][1] = M[row_idx][col_idx];
+    M_iteration[1][0] = M[col_idx][row_idx];
+    M_iteration[1][1] = M[col_idx][col_idx];
 
     float thetaDiff = getThetaDiff(M_iteration, conversionFactor);
     float thetaSum = getThetaSum(M_iteration, conversionFactor);
@@ -274,27 +274,8 @@ void sweep(int col_idx, int row_idx, int conversionFactor)
     V_iteration[col_idx][col_idx] = R_iteration[1][1];
 
     float new_M_iteration[4][4];
-    matrixMultiply(U_iteration, test_matrix, new_M_iteration);
-    matrixMultiply(new_M_iteration, V_iteration, test_matrix);
-
-    // printf("MATRIX M FINAL:\n");
-    // for (i = 0; i < 2; i++)
-    // {
-    //     for (j = 0; j < 2; j++)
-    //     {
-    //         printf("%f ", M_iteration[i][j]);
-    //         if (j == 2 - 1)
-    //         {
-    //             printf("\n");
-    //         }
-    //     }
-    // }
-
-    // test_matrix[row_idx][row_idx] = M_iteration[0][0];
-    // test_matrix[row_idx][col_idx] = 0; //M_iteration[0][1];
-    // test_matrix[col_idx][row_idx] = 0; //M_iteration[1][0];
-    // test_matrix[col_idx][col_idx] = M_iteration[1][1];
-    // print_matrix();
+    matrixMultiply(U_iteration, M, new_M_iteration);
+    matrixMultiply(new_M_iteration, V_iteration, M);
 }
 
 int main(int argc, char *argv[])
@@ -312,80 +293,12 @@ int main(int argc, char *argv[])
     int conversionFactor = calcConversionFactor(min, max);
     printf("min: %f, max: %f, conversion factor is: %d\n", min, max, conversionFactor);
 
-    // Doing a mock run of the first iteration in first sweep
-
-    float M_iteration[2][2];
-
     //Change these variable names to be unique
     k = 0; // would be sweep number
     i = 0; // would be outer loop variable, go to testMatrix.length -1
     j = 1; // inner loop variable, would start at i +1 and go to testMatrix.length-1
 
-    // // pair is selected
-    // M_iteration[0][0] = test_matrix[i][i];
-    // M_iteration[0][1] = test_matrix[i][j];
-    // M_iteration[1][0] = test_matrix[j][i];
-    // M_iteration[1][1] = test_matrix[j][j];
-
-    // printf("\n\nMATRIX M:\n");
-    // float thetaDiff = getThetaDiff(M_iteration, conversionFactor);
-    // float thetaSum = getThetaSum(M_iteration, conversionFactor);
-
-    // float thetaL = getThetaL(thetaSum, thetaDiff);
-    // float thetaR = getThetaR(thetaSum, thetaDiff);
-
-    // //Get rotation matrices
-    // float L[2][2]; //Will want to make into V and 4x4
-    // float R[2][2]; //Will want to make into U and 4x4
-
-    // get rotation parameters
-
-    // float newM[2][2];
-    // getLMatrix(thetaL, L);
-    // getRMatrixT(thetaR, R);
-
-    // printf("\n\nMATRIX L:\n");
-    // for (i = 0; i < 2; i++)
-    // {
-    //     for (j = 0; j < 2; j++)
-    //     {
-    //         printf("%f ", L[i][j]);
-    //         if (j == 2 - 1)
-    //         {
-    //             printf("\n");
-    //         }
-    //     }
-    // }
-    // printf("MATRIX R:\n");
-    // for (i = 0; i < 2; i++)
-    // {
-    //     for (j = 0; j < 2; j++)
-    //     {
-    //         printf("%f ", R[i][j]);
-    //         if (j == 2 - 1)
-    //         {
-    //             printf("\n");
-    //         }
-    //     }
-    // }
-
-    // //Apply rotations to M
-    // matrixMultiply(L, M_iteration, newM);
-    // matrixMultiply(newM, R, M_iteration);
-
-    // printf("MATRIX M FINAL:\n");
-    // for (i = 0; i < 2; i++)
-    // {
-    //     for (j = 0; j < 2; j++)
-    //     {
-    //         printf("%f ", M_iteration[i][j]);
-    //         if (j == 2 - 1)
-    //         {
-    //             printf("\n");
-    //         }
-    //     }
-    // }
-    for (int k = 0; k < 5; k++)
+    for (k = 0; k < 5; k++)
     {
         for (j = 0; j < 3; j++)
         {
@@ -398,8 +311,6 @@ int main(int argc, char *argv[])
             }
         }
     }
-
-    // sweep(1, 0, conversionFactor);
 
     // So this gets us the correct value for M but as seen in the documentation we are gona make L and R into V12 and U12.
     // Once we figure out the process for U and V, we should be just about ready to start the optimization.
