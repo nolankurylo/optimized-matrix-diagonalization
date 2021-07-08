@@ -2,9 +2,7 @@
 
 int min_range, max_range;
 
-float M[matrix_size][matrix_size] = {31, 77, -11, 26, -42, 14, 79, -53, -68, -10, 45, 90, 34, 16, 38, -19};
-
-void gen_test_matrix()
+void gen_test_matrix(float M[4][4])
 {
     float max = 500.0;
     srand((unsigned int)time(NULL));
@@ -19,7 +17,27 @@ void gen_test_matrix()
     }
 }
 
-void gen_identity_matrix(float identity[4][4])
+void gen_M_matrix(float M[4][4])
+{
+    M[0][0] = 31;
+    M[0][1] = 77;
+    M[0][2] = -11;
+    M[0][3] = 26;
+    M[1][0] = -42;
+    M[1][1] = 14;
+    M[1][2] = 79;
+    M[1][3] = -53;
+    M[2][0] = -68;
+    M[2][1] = -10;
+    M[2][2] = 45;
+    M[2][3] = 90;
+    M[3][0] = 34;
+    M[3][1] = 16;
+    M[3][2] = 38;
+    M[3][3] = -19;
+}
+
+void gen_identity_matrix(int identity[4][4], int scaleFactor)
 {
 
     for (int i = 0; i < 4; i++)
@@ -28,7 +46,7 @@ void gen_identity_matrix(float identity[4][4])
         {
             if (j == i)
             {
-                identity[j][i] = 1;
+                identity[j][i] = scaleFactor;
             }
             else
             {
@@ -38,7 +56,35 @@ void gen_identity_matrix(float identity[4][4])
     }
 }
 
-float get_max()
+void scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFactor)
+{
+
+    int i, j;
+    for (i ^= i; !(i & 4); i++)
+    {
+        for (j ^= j; !(j & 4); j++)
+        {
+            int_matrix[i][j] = (scaleFactor * float_matrix[i][j]);
+        }
+    }
+}
+
+void un_scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFactor)
+{
+    int i, j;
+
+    float floatScale = 1 / (float)scaleFactor;
+
+    for (i ^= i; !(i & 4); i++)
+    {
+        for (j ^= j; !(j & 4); j++)
+        {
+            float_matrix[i][j] = (int_matrix[i][j] * floatScale);
+        }
+    }
+}
+
+float get_max(float M[4][4])
 {
     float max = M[0][0];
 
@@ -55,7 +101,7 @@ float get_max()
     return max;
 }
 
-float get_min()
+float get_min(float M[4][4])
 {
     float min = M[0][0];
 
@@ -72,19 +118,33 @@ float get_min()
     return min;
 }
 
-void print_matrix()
+void print_matrix(float print_M[4][4])
 {
-    printf("Two Dimensional array elements:\n");
-
     for (int i = 0; i < matrix_size; i++)
     {
         for (int j = 0; j < matrix_size; j++)
         {
-            printf("%f ", M[i][j]);
+            printf("%f ", print_M[i][j]);
             if (j == matrix_size - 1)
             {
                 printf("\n");
             }
         }
     }
+}
+
+void print_matrix_int(int print_M[4][4])
+{
+    for (int i = 0; i < matrix_size; i++)
+    {
+        for (int j = 0; j < matrix_size; j++)
+        {
+            printf("%d ", print_M[i][j]);
+            if (j == matrix_size - 1)
+            {
+                printf("\n");
+            }
+        }
+    }
+    printf("\n");
 }

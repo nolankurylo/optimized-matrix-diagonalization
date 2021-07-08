@@ -1,0 +1,5 @@
+Build Local:
+gcc -o project seng440Project.c gen_matrix.c
+
+Build on ARM Machine:
+arm-linux-gnu-gcc -static -o project seng440Project.c gen_matrix.c -lm

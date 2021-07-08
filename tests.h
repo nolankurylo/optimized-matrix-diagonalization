@@ -6,12 +6,20 @@
 #define matrix_size 4
 
 // Prototype functions
-void gen_test_matrix(void);
+void gen_test_matrix(float[4][4]);
 
-void gen_identity_matrix(float[4][4]);
+void scale_matrix(float[4][4], int[4][4], int);
 
-void print_matrix(void);
+void un_scale_matrix(float[4][4], int[4][4], int);
 
-float get_min(void);
+void gen_identity_matrix(int[4][4], int);
 
-float get_max(void);
+void gen_M_matrix(float[4][4]);
+
+void print_matrix(float[4][4]);
+
+float get_min(float[4][4]);
+
+float get_max(float[4][4]);
+
+void print_matrix_int(int[4][4]);
