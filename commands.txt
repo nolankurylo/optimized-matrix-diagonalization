@@ -1,5 +1,6 @@
 Build Local:
 gcc -o project seng440Project.c gen_matrix.c
+gcc -o project seng440Project.c gen_matrix.c -std=c99 (nolans machine)
 
 Build on ARM Machine:
 arm-linux-gnu-gcc -static -o project seng440Project.c gen_matrix.c -lm
