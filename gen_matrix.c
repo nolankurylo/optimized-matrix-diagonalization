@@ -64,7 +64,7 @@ void scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFacto
     {
         for (j ^= j; !(j & 4); j++)
         {
-            int_matrix[i][j] = (scaleFactor * float_matrix[i][j]); // should round this
+            int_matrix[i][j] = round(scaleFactor * float_matrix[i][j]); // should round this
         }
     }
 }
@@ -76,9 +76,6 @@ void un_scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFa
     // float floatScale = 1 / (float)scaleFactor;
 
     int scale = 1<<scaleFactor;
-
-    
-    printf("scale: %d\n", scale);
 
     for (i ^= i; !(i & 4); i++)
     {
