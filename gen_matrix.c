@@ -64,7 +64,7 @@ void scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFacto
     {
         for (j ^= j; !(j & 4); j++)
         {
-            int_matrix[i][j] = (scaleFactor * float_matrix[i][j]);
+            int_matrix[i][j] = (scaleFactor * float_matrix[i][j]); // should round this
         }
     }
 }
@@ -104,6 +104,40 @@ float get_max(float M[4][4])
 float get_min(float M[4][4])
 {
     float min = M[0][0];
+
+    for (int i = 0; i < matrix_size; i++)
+    {
+        for (int j = 0; j < matrix_size; j++)
+        {
+            if (min > M[i][j])
+            {
+                min = M[i][j];
+            }
+        }
+    }
+    return min;
+}
+
+int get_max_int(int M[4][4])
+{
+    int max = M[0][0];
+
+    for (int i = 0; i < matrix_size; i++)
+    {
+        for (int j = 0; j < matrix_size; j++)
+        {
+            if (max < M[i][j])
+            {
+                max = M[i][j];
+            }
+        }
+    }
+    return max;
+}
+
+int get_min_int(int M[4][4])
+{
+    int min = M[0][0];
 
     for (int i = 0; i < matrix_size; i++)
     {

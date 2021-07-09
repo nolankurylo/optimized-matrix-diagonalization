@@ -22,4 +22,8 @@ float get_min(float[4][4]);
 
 float get_max(float[4][4]);
 
+int get_min_int(int[4][4]);
+
+int get_max_int(int[4][4]);
+
 void print_matrix_int(int[4][4]);
