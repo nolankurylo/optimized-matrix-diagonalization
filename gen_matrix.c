@@ -73,13 +73,18 @@ void un_scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFa
 {
     int i, j;
 
-    float floatScale = 1 / (float)scaleFactor;
+    // float floatScale = 1 / (float)scaleFactor;
+
+    int scale = 1<<scaleFactor;
+
+    
+    printf("scale: %d\n", scale);
 
     for (i ^= i; !(i & 4); i++)
     {
         for (j ^= j; !(j & 4); j++)
         {
-            float_matrix[i][j] = (int_matrix[i][j] * floatScale);
+            float_matrix[i][j] = (float)int_matrix[i][j]/scale;
         }
     }
 }
