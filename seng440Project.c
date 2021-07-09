@@ -11,6 +11,13 @@
 #define MASK_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE - 1)
 
 int fast_cossin_table[MAX_CIRCLE_ANGLE];
+int scaleFactor;
+int scaleFactorV;
+int scaleFactorU;
+
+int scaleFactorPowerP = 16;
+
+
 
 int FloatToIntTruncate(float f)
 {
@@ -21,13 +28,13 @@ int FloatToIntTruncate(float f)
  * Works between pi and -pi
  * https://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
  * @param n Input angle that is scaled by the scale factor
- * @param factor Scale factor for the problem space. If not using scale factor, use scale factor 1.
+ * @paramscaleFactorScale scaleFactor for the problem space. If not using scale factor, use scale scaleFactor 1.
  */
-static int fastsin(int n, int factor)
+static int fastsin(int n)
 {
-    int adjustedFactor = HALF_MAX_CIRCLE_ANGLE / factor;
+    int adjustedFactor = HALF_MAX_CIRCLE_ANGLE / scaleFactor;
 
-    // printf("the adjusted factor is: %d", adjustedFactor);
+    // printf("the adjusted scaleFactor is: %d", adjustedFactor);
 
     int i = n * adjustedFactor / M_PI;
 
@@ -47,11 +54,11 @@ static int fastsin(int n, int factor)
  * Fast cos computation using the fast cossin table
  * https://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
  * @param n Input angle that is scaled by the scale factor
- * @param factor Scale factor for the problem space. If not using scale factor, use scale factor 1.
+ * @param scaleFactor Scale scaleFactor for the problem space. If not using scale factor, use scale scaleFactor 1.
  */
-static int fastcos(int n, int factor)
+static int fastcos(int n)
 {
-    int adjustedFactor = HALF_MAX_CIRCLE_ANGLE / factor;
+    int adjustedFactor = HALF_MAX_CIRCLE_ANGLE / scaleFactor;
     int i = n * adjustedFactor / M_PI;
 
     if (i < 0)
@@ -84,17 +91,17 @@ int calculateScaleFactor(int min, int max)
     }
 
     // Assuming 16 bit -> 2^16 - 1 = 2^15 = 32768 --> SFx =  2^15 / 2^x where x is max pow of 2
-    int scaleFactor = (32768) / maxPow2;
+    int SF = (32768) / maxPow2;
+    return SF;
 
-    return scaleFactor;
 }
 
-int fastArcTan(float arg, int factor)
+int fastArcTan(float arg)
 {
 
-    int x = arg * factor;
-    int min = 0.5 * factor;
-    int max = 1.0 * factor;
+    int x = arg * scaleFactor;
+    int min = 0.5 * scaleFactor;
+    int max = 1.0 * scaleFactor;
 
     // printf("x is %d \n", x);
     // printf("min is %d \n", min);
@@ -102,27 +109,27 @@ int fastArcTan(float arg, int factor)
     int angle = 0;
     if (x > min && x <= max)
     {
-        angle = ((int)(0.644 * factor)) * x + ((int)(0.142 * factor));
+        angle = ((0.644 * scaleFactor)) * x + ((0.142 * scaleFactor));
     }
 
     else if (x >= -min && x <= min)
     {
-        angle = ((int)(0.928 * factor)) * x;
+        angle = ((0.928 * scaleFactor)) * x;
     }
 
     else if (x < -min && x >= -max)
     {
-        angle = ((int)(0.644 * factor)) * x - ((int)(0.142 * factor));
+        angle = ((0.644 * scaleFactor)) * x - ((0.142 * scaleFactor));
     }
     else
     {
-        printf("WE REALLY FUCKED IT THIS TIME\n", angle);
+        printf("WE REALLY FUCKED IT THIS TIME\n");
     }
 
-    return angle / (factor); //remove this after we figure out scaling
+    return (int)( angle / (scaleFactor)); //remove this after we figure out scaling
 }
 
-int newArctan(int x, int y, int factor) // return float value of arctan (currently not using scale factor)
+int newArctan(int x, int y) // return float value of arctan (currently not using scale factor)
 {
     // printf("x is %d \n", x);
     // printf("y is %d \n", y);
@@ -153,18 +160,18 @@ int newArctan(int x, int y, int factor) // return float value of arctan (current
         // printf("Arg in first if is: %.2f\n", arg);
         if (arg < 0)
         {
-            angle = -(fastArcTan(arg, factor) + ((int)(M_PI * factor) >> 1));
+            angle = -(fastArcTan(arg) + ((int)(M_PI * scaleFactor) >> 1));
         }
         else
         {
-            angle = ((int)(M_PI * factor) >> 1) - fastArcTan(arg, factor);
+            angle = ((int)(M_PI * scaleFactor) >> 1) - fastArcTan(arg);
         }
     }
     else
     {
         arg = (float)x / (float)y;
         // printf("Arg in second if is: %.2f\n", arg);
-        angle = fastArcTan(arg, factor);
+        angle = fastArcTan(arg);
     }
     // printf("Angle is %.2f\n", angle);
 
@@ -186,40 +193,40 @@ int getThetaL(int thetaSum, int thetaDiff)
     return thetaL2 >> 1;
 }
 
-int getThetaSum(int subMatrix[2][2], int scaleFactor)
+int getThetaSum(int subMatrix[2][2])
 {
     int x = subMatrix[0][1] + subMatrix[1][0];
     int y = subMatrix[1][1] - subMatrix[0][0];
-    int thetaSum = newArctan(x, y, scaleFactor);
+    int thetaSum = newArctan(x, y);
     return thetaSum;
 }
 
-int getThetaDiff(int subMatrix[2][2], int scaleFactor)
+int getThetaDiff(int subMatrix[2][2])
 {
 
     int x = subMatrix[1][0] - subMatrix[0][1];
     int y = subMatrix[1][1] + subMatrix[0][0];
     // printf("x: %d, y: %d\n", x, y);
-    int thetaDiff = newArctan(x, y, scaleFactor);
+    int thetaDiff = newArctan(x, y);
     return thetaDiff;
 }
 
-void getLMatrix(int thetaL, int L[2][2], int scaleFactor)
+void getLMatrix(int thetaL, int L[2][2])
 {
     // Adjust this to assign to indexes that u pass in based on the loop to make V and U
-    L[0][0] = fastcos(thetaL, scaleFactor);
-    L[0][1] = -fastsin(thetaL, scaleFactor);
-    L[1][0] = fastsin(thetaL, scaleFactor);
-    L[1][1] = fastcos(thetaL, scaleFactor);
+    L[0][0] = fastcos(thetaL);
+    L[0][1] = -fastsin(thetaL);
+    L[1][0] = fastsin(thetaL);
+    L[1][1] = fastcos(thetaL);
 }
 
-void getRMatrix(int thetaR, int R[2][2], int scaleFactor)
+void getRMatrix(int thetaR, int R[2][2])
 {
     // Adjust this to assign to indexes that u pass in based on the loop to make V and U
-    R[0][0] = fastcos(thetaR, scaleFactor);
-    R[0][1] = -fastsin(thetaR, scaleFactor);
-    R[1][0] = fastsin(thetaR, scaleFactor);
-    R[1][1] = fastcos(thetaR, scaleFactor);
+    R[0][0] = fastcos(thetaR);
+    R[0][1] = -fastsin(thetaR);
+    R[1][0] = fastsin(thetaR);
+    R[1][1] = fastcos(thetaR);
 }
 
 void Transpose_4x4(int matrix[4][4])
@@ -245,35 +252,38 @@ void Transpos_2x2(int matrix[2][2])
     memcpy(matrix, transpose, sizeof(transpose));
 }
 
-void matrixMultiply(int X[4][4], int Y[4][4], int newM[4][4], int scaleFactor)
+void matrixMultiply(int X[4][4], int Y[4][4], int newM[4][4], int SFx, int SFy)
 {
     // this is the "slow" method, can look into using arm NEON but that shit is cryptic as fuck
     // Will want to change this to 4x4 matrices to accomodate the V and U instead
-    // int shiftFactor = log(scaleFactor) / log(2); // 2^7 -> shift factor is 7
+    // int shiftFactor = log(scaleFactor) / log(2); // 2^7 -> shift scaleFactor is 7
 
     int temp;
     int n = 4; // for a nxn matrix
 
     // float floatScale = 1 / (float)scaleFactor;
-
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            newM[i][j] = 0;
+            
             for (int k = 0; k < n; k++)
             {
                 // newM[i][j] += X[i][k] * Y[k][j] / scaleFactor;
-                temp = round(X[i][k] * Y[k][j] / scaleFactor);
-                newM[i][j] += temp;
+                newM[i][j] += ((X[i][k]* SFx * Y[k][j] * SFy)) >> 2;
+                
             }
+                
+            newM[i][j] >>= 16;
+            
         }
     }
+
 }
 // i row_idx, j col_idx (i=0, j=1 for pair (1-2))
-void sweep(int row_idx, int col_idx, int scaleFactor, int U[4][4], int V[4][4], int M[4][4])
+void sweep(int row_idx, int col_idx, int U[4][4], int V[4][4], int M[4][4])
 {
-
+    
     int i, j, k;
     int M_iteration[2][2];
     M_iteration[0][0] = M[row_idx][row_idx];
@@ -281,9 +291,12 @@ void sweep(int row_idx, int col_idx, int scaleFactor, int U[4][4], int V[4][4], 
     M_iteration[1][0] = M[col_idx][row_idx];
     M_iteration[1][1] = M[col_idx][col_idx];
 
-    int thetaDiff = getThetaDiff(M_iteration, scaleFactor);
+    int thetaDiff = getThetaDiff(M_iteration);
 
-    int thetaSum = getThetaSum(M_iteration, scaleFactor);
+    int thetaSum = getThetaSum(M_iteration);
+
+    printf("thetaDiff = %d\n", thetaDiff);
+    printf("thetaSum = %d\n", thetaSum);
 
     int thetaL = getThetaL(thetaSum, thetaDiff);
     int thetaR = getThetaR(thetaSum, thetaDiff);
@@ -291,8 +304,8 @@ void sweep(int row_idx, int col_idx, int scaleFactor, int U[4][4], int V[4][4], 
     int R_iteration[2][2]; //Will want to make into U and 4x4
     int L_iteration[2][2];
 
-    getLMatrix(thetaL, L_iteration, scaleFactor);
-    getRMatrix(thetaR, R_iteration, scaleFactor);
+    getLMatrix(thetaL, L_iteration);
+    getRMatrix(thetaR, R_iteration);
 
     //Get rotation matrices
     int U_iteration[4][4];
@@ -308,25 +321,43 @@ void sweep(int row_idx, int col_idx, int scaleFactor, int U[4][4], int V[4][4], 
     V_iteration[col_idx][row_idx] = R_iteration[1][0];
     V_iteration[col_idx][col_idx] = R_iteration[1][1];
 
-    // Transpose_4x4(V);
+    int minV = get_min_int(V_iteration);
+    int maxV = get_max_int(V_iteration);
+    scaleFactorV = calculateScaleFactor(minV, maxV);
+    printf("scalefactorV: %d\n", scaleFactorV);
+
+    int minU = get_min_int(U_iteration);
+    int maxU = get_max_int(U_iteration);
+    scaleFactorU = calculateScaleFactor(minU, maxU);
+    printf("scalefactorU: %d\n", scaleFactorU);
+
+    // // Transpose_4x4(V);
+    // printf("V iteration:\n");
+    // print_matrix_int(V_iteration);
+    
     int newV[4][4];
-    matrixMultiply(V_iteration, V, newV, scaleFactor);
+    matrixMultiply(V_iteration, V, newV, scaleFactorU,);
+
+    printf("V iteration:\n");
+    print_matrix_int(V_iteration);
 
     memcpy(V, newV, sizeof(newV));
 
     Transpose_4x4(V_iteration);
 
     int new_M_iteration[4][4];
-    matrixMultiply(U_iteration, M, new_M_iteration, scaleFactor);
-    matrixMultiply(new_M_iteration, V_iteration, M, scaleFactor);
+    // printf("New M\n");
+    matrixMultiply(U_iteration, M, new_M_iteration);
+    matrixMultiply(new_M_iteration, V_iteration, M);
 
-    printf("New M\n");
-    print_matrix_int(M);
+    
+    
 
     Transpose_4x4(U_iteration);
     int newU[4][4];
-    matrixMultiply(U, U_iteration, newU, scaleFactor);
+    matrixMultiply(U, U_iteration, newU);
     memcpy(U, newU, sizeof(newU));
+    // scaleFactor -= 19;
 }
 
 int main(int argc, char *argv[])
@@ -344,7 +375,7 @@ int main(int argc, char *argv[])
 
     float min = get_min(M);
     float max = get_max(M);
-    int scaleFactor = calculateScaleFactor(min, max);
+    scaleFactor = calculateScaleFactor(min, max);
 
     int i, j, k;
     for (i = 0; i < MAX_CIRCLE_ANGLE; i++)
@@ -362,7 +393,7 @@ int main(int argc, char *argv[])
     gen_identity_matrix(scaled_U, scaleFactor);
     gen_identity_matrix(scaled_V, scaleFactor);
     print_matrix_int(scaled_M);
-    printf("min: %f, max: %f, conversion factor is: %d\n", min, max, scaleFactor);
+    printf("min: %f, max: %f, conversion scaleFactor is: %d\n", min, max, scaleFactor);
 
     // for (k = 0; k < 16; k++) // 5 sweeps
     // {
@@ -371,7 +402,7 @@ int main(int argc, char *argv[])
         for (j = i + 1; j < 4; j++) // each column in the row
         {
 
-            sweep(i, j, scaleFactor, scaled_U, scaled_V, scaled_M);
+            sweep(i, j, scaled_U, scaled_V, scaled_M);
             printf("M Scaled: \n");
             print_matrix_int(scaled_M);
             printf("\n\n");
