@@ -245,7 +245,7 @@ void matrixMultiply(int X[4][4], int Y[4][4], int newM[4][4])
             
             colSum = col1 + col2 + col3+ col4; // 32 bit number - 2 worst-case adjustment = 30 bit number - SF = 
             colSum >>= 13; // at 28 bits, shift back to scale factor of 15 bits
-            newM[i][j] = tempSum;
+            newM[i][j] = colSum;
             
         }
     }
