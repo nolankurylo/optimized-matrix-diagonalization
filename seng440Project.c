@@ -207,7 +207,7 @@ void print_matrix_int(int print_M[4][4])
  * @param n Input angle that is scaled by the scale factor
  * @paramscaleFactorScale scaleFactor for the problem space. If not using scale factor, use scale scaleFactor 1.
  */
-static int fastsin(int n)
+int fastsin(int n)
 {
 
 
@@ -229,7 +229,7 @@ static int fastsin(int n)
  * @param n Input angle that is scaled by the scale factor
  * @param scaleFactor Scale scaleFactor for the problem space. If not using scale factor, use scale scaleFactor 1.
  */
-static int fastcos(int n)
+int fastcos(int n)
 {
     int i = (n >> 4) / M_PI; //scale down to a value within the bin range
 
