@@ -1,0 +1,2043 @@
+	.arch armv7-a
+	.eabi_attribute 28, 1
+	.eabi_attribute 20, 1
+	.eabi_attribute 21, 1
+	.eabi_attribute 23, 3
+	.eabi_attribute 24, 1
+	.eabi_attribute 25, 1
+	.eabi_attribute 26, 2
+	.eabi_attribute 30, 6
+	.eabi_attribute 34, 1
+	.eabi_attribute 18, 4
+	.file	"seng440Project.c"
+	.text
+	.comm	fast_cossin_table,8192,4
+	.comm	scaleFactor,4,4
+	.comm	min_range,4,4
+	.comm	max_range,4,4
+	.align	2
+	.global	gen_test_matrix
+	.arch armv7-a
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	gen_test_matrix, %function
+gen_test_matrix:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	vpush.64	{d8}
+	add	fp, sp, #12
+	sub	sp, sp, #24
+	str	r0, [fp, #-32]
+	mov	r3, #0
+	movt	r3, 17402
+	str	r3, [fp, #-24]	@ float
+	mov	r0, #0
+	bl	time
+	mov	r3, r0
+	mov	r0, r3
+	bl	srand
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L2
+.L5:
+	mov	r3, #0
+	str	r3, [fp, #-20]
+	b	.L3
+.L4:
+	vldr.32	s15, [fp, #-24]
+	vcvt.f64.f32	d8, s15
+	bl	rand
+	vmov	s15, r0	@ int
+	vcvt.f32.s32	s14, s15
+	vldr.32	s13, .L6
+	vdiv.f32	s15, s14, s13
+	vcvt.f64.f32	d7, s15
+	vmov.f64	d6, #5.0e-1
+	vsub.f64	d7, d7, d6
+	vmul.f64	d7, d8, d7
+	vcvt.f32.f64	s15, d7
+	vstr.32	s15, [fp, #-28]
+	ldr	r3, [fp, #-16]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-32]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-20]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	ldr	r2, [fp, #-28]	@ float
+	str	r2, [r3]	@ float
+	ldr	r3, [fp, #-20]
+	add	r3, r3, #1
+	str	r3, [fp, #-20]
+.L3:
+	ldr	r3, [fp, #-20]
+	cmp	r3, #3
+	ble	.L4
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L2:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #3
+	ble	.L5
+	nop
+	sub	sp, fp, #12
+	@ sp needed
+	vldm	sp!, {d8}
+	pop	{fp, pc}
+.L7:
+	.align	2
+.L6:
+	.word	1325400064
+	.size	gen_test_matrix, .-gen_test_matrix
+	.align	2
+	.global	gen_M_matrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	gen_M_matrix, %function
+gen_M_matrix:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #12
+	str	r0, [fp, #-8]
+	ldr	r3, [fp, #-8]
+	mov	r2, #0
+	movt	r2, 16888
+	str	r2, [r3]	@ float
+	ldr	r3, [fp, #-8]
+	mov	r2, #0
+	movt	r2, 17050
+	str	r2, [r3, #4]	@ float
+	ldr	r3, [fp, #-8]
+	mov	r2, #0
+	movt	r2, 49456
+	str	r2, [r3, #8]	@ float
+	ldr	r3, [fp, #-8]
+	mov	r2, #0
+	movt	r2, 16848
+	str	r2, [r3, #12]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #16
+	mov	r2, #0
+	movt	r2, 49704
+	str	r2, [r3]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #16
+	mov	r2, #0
+	movt	r2, 16736
+	str	r2, [r3, #4]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #16
+	mov	r2, #0
+	movt	r2, 17054
+	str	r2, [r3, #8]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #16
+	mov	r2, #0
+	movt	r2, 49748
+	str	r2, [r3, #12]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #32
+	mov	r2, #0
+	movt	r2, 49800
+	str	r2, [r3]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #32
+	mov	r2, #0
+	movt	r2, 49440
+	str	r2, [r3, #4]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #32
+	mov	r2, #0
+	movt	r2, 16948
+	str	r2, [r3, #8]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #32
+	mov	r2, #0
+	movt	r2, 17076
+	str	r2, [r3, #12]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #48
+	mov	r2, #0
+	movt	r2, 16904
+	str	r2, [r3]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #48
+	mov	r2, #0
+	movt	r2, 16768
+	str	r2, [r3, #4]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #48
+	mov	r2, #0
+	movt	r2, 16920
+	str	r2, [r3, #8]	@ float
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #48
+	mov	r2, #0
+	movt	r2, 49560
+	str	r2, [r3, #12]	@ float
+	nop
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	gen_M_matrix, .-gen_M_matrix
+	.align	2
+	.global	gen_identity_matrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	gen_identity_matrix, %function
+gen_identity_matrix:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #20
+	str	r0, [fp, #-16]
+	str	r1, [fp, #-20]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L10
+.L15:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L11
+.L14:
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-8]
+	cmp	r2, r3
+	bne	.L12
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-16]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-8]
+	ldr	r1, [fp, #-20]
+	str	r1, [r3, r2, lsl #2]
+	b	.L13
+.L12:
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-16]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-8]
+	mov	r1, #0
+	str	r1, [r3, r2, lsl #2]
+.L13:
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L11:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L14
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L10:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #3
+	ble	.L15
+	nop
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	gen_identity_matrix, .-gen_identity_matrix
+	.align	2
+	.global	scale_matrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	scale_matrix, %function
+scale_matrix:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #24
+	str	r0, [fp, #-16]
+	str	r1, [fp, #-20]
+	str	r2, [fp, #-24]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L17
+.L20:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L18
+.L19:
+	ldr	r3, [fp, #-24]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s14, s15
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-16]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	vldr.32	s15, [r3]
+	vmul.f32	s15, s14, s15
+	vcvt.f64.f32	d7, s15
+	vmov.f64	d0, d7
+	bl	round
+	vmov.f64	d7, d0
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-20]
+	add	r3, r2, r3
+	vcvt.s32.f64	s15, d7
+	vmov	r1, s15	@ int
+	ldr	r2, [fp, #-12]
+	str	r1, [r3, r2, lsl #2]
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L18:
+	ldr	r3, [fp, #-12]
+	and	r3, r3, #4
+	cmp	r3, #0
+	beq	.L19
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L17:
+	ldr	r3, [fp, #-8]
+	and	r3, r3, #4
+	cmp	r3, #0
+	beq	.L20
+	nop
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	scale_matrix, .-scale_matrix
+	.align	2
+	.global	un_scale_matrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	un_scale_matrix, %function
+un_scale_matrix:
+	@ args = 0, pretend = 0, frame = 32
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #36
+	str	r0, [fp, #-24]
+	str	r1, [fp, #-28]
+	str	r2, [fp, #-32]
+	mov	r2, #1
+	ldr	r3, [fp, #-32]
+	lsl	r3, r2, r3
+	str	r3, [fp, #-16]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L22
+.L25:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L23
+.L24:
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-28]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-12]
+	ldr	r3, [r3, r2, lsl #2]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s13, s15
+	ldr	r3, [fp, #-16]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s14, s15
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r2, r2, r3
+	vdiv.f32	s15, s13, s14
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	vstr.32	s15, [r3]
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L23:
+	ldr	r3, [fp, #-12]
+	and	r3, r3, #4
+	cmp	r3, #0
+	beq	.L24
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L22:
+	ldr	r3, [fp, #-8]
+	and	r3, r3, #4
+	cmp	r3, #0
+	beq	.L25
+	nop
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	un_scale_matrix, .-un_scale_matrix
+	.align	2
+	.global	get_max
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	get_max, %function
+get_max:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #28
+	str	r0, [fp, #-24]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3]	@ float
+	str	r3, [fp, #-8]	@ float
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L27
+.L32:
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L28
+.L31:
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-16]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	vldr.32	s15, [r3]
+	vldr.32	s14, [fp, #-8]
+	vcmpe.f32	s14, s15
+	vmrs	APSR_nzcv, FPSCR
+	bpl	.L29
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-16]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	ldr	r3, [r3]	@ float
+	str	r3, [fp, #-8]	@ float
+.L29:
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L28:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #3
+	ble	.L31
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L27:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L32
+	ldr	r3, [fp, #-8]	@ float
+	vmov	s15, r3
+	vmov.f32	s0, s15
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	get_max, .-get_max
+	.align	2
+	.global	get_min
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	get_min, %function
+get_min:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #28
+	str	r0, [fp, #-24]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3]	@ float
+	str	r3, [fp, #-8]	@ float
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L36
+.L41:
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L37
+.L40:
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-16]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	vldr.32	s15, [r3]
+	vldr.32	s14, [fp, #-8]
+	vcmpe.f32	s14, s15
+	vmrs	APSR_nzcv, FPSCR
+	ble	.L38
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-16]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	ldr	r3, [r3]	@ float
+	str	r3, [fp, #-8]	@ float
+.L38:
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L37:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #3
+	ble	.L40
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L36:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L41
+	ldr	r3, [fp, #-8]	@ float
+	vmov	s15, r3
+	vmov.f32	s0, s15
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	get_min, .-get_min
+	.align	2
+	.global	get_max_int
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	get_max_int, %function
+get_max_int:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #28
+	str	r0, [fp, #-24]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3]
+	str	r3, [fp, #-8]
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L45
+.L49:
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L46
+.L48:
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-16]
+	ldr	r3, [r3, r2, lsl #2]
+	ldr	r2, [fp, #-8]
+	cmp	r2, r3
+	bge	.L47
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-16]
+	ldr	r3, [r3, r2, lsl #2]
+	str	r3, [fp, #-8]
+.L47:
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L46:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #3
+	ble	.L48
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L45:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L49
+	ldr	r3, [fp, #-8]
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	get_max_int, .-get_max_int
+	.align	2
+	.global	get_min_int
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	get_min_int, %function
+get_min_int:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #28
+	str	r0, [fp, #-24]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3]
+	str	r3, [fp, #-8]
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L52
+.L56:
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L53
+.L55:
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-16]
+	ldr	r3, [r3, r2, lsl #2]
+	ldr	r2, [fp, #-8]
+	cmp	r2, r3
+	ble	.L54
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-24]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-16]
+	ldr	r3, [r3, r2, lsl #2]
+	str	r3, [fp, #-8]
+.L54:
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L53:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #3
+	ble	.L55
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L52:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L56
+	ldr	r3, [fp, #-8]
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	get_min_int, .-get_min_int
+	.section	.rodata
+	.align	2
+.LC0:
+	.ascii	"%f \000"
+	.text
+	.align	2
+	.global	print_matrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	print_matrix, %function
+print_matrix:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #16
+	str	r0, [fp, #-16]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L59
+.L63:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L60
+.L62:
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-16]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-12]
+	lsl	r3, r3, #2
+	add	r3, r2, r3
+	vldr.32	s15, [r3]
+	vcvt.f64.f32	d7, s15
+	vmov	r2, r3, d7
+	movw	r0, #:lower16:.LC0
+	movt	r0, #:upper16:.LC0
+	bl	printf
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	bne	.L61
+	mov	r0, #10
+	bl	putchar
+.L61:
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L60:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L62
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L59:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #3
+	ble	.L63
+	nop
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	print_matrix, .-print_matrix
+	.section	.rodata
+	.align	2
+.LC1:
+	.ascii	"%d \000"
+	.text
+	.align	2
+	.global	print_matrix_int
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	print_matrix_int, %function
+print_matrix_int:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #16
+	str	r0, [fp, #-16]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L65
+.L69:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L66
+.L68:
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-16]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-12]
+	ldr	r3, [r3, r2, lsl #2]
+	mov	r1, r3
+	movw	r0, #:lower16:.LC1
+	movt	r0, #:upper16:.LC1
+	bl	printf
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	bne	.L67
+	mov	r0, #10
+	bl	putchar
+.L67:
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L66:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L68
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L65:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #3
+	ble	.L69
+	mov	r0, #10
+	bl	putchar
+	nop
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	print_matrix_int, .-print_matrix_int
+	.align	2
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	fastsin, %function
+fastsin:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #20
+	str	r0, [fp, #-16]
+	ldr	r3, [fp, #-16]
+	asr	r3, r3, #4
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d6, s15
+	vldr.64	d5, .L73
+	vdiv.f64	d7, d6, d5
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-8]
+	cmp	r3, #0
+	bge	.L71
+	ldr	r3, [fp, #-8]
+	rsb	r3, r3, #0
+	ubfx	r3, r3, #0, #11
+	rsb	r2, r3, #2048
+	movw	r3, #:lower16:fast_cossin_table
+	movt	r3, #:upper16:fast_cossin_table
+	ldr	r3, [r3, r2, lsl #2]
+	b	.L72
+.L71:
+	ldr	r3, [fp, #-8]
+	ubfx	r2, r3, #0, #11
+	movw	r3, #:lower16:fast_cossin_table
+	movt	r3, #:upper16:fast_cossin_table
+	ldr	r3, [r3, r2, lsl #2]
+.L72:
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+.L74:
+	.align	3
+.L73:
+	.word	1413754136
+	.word	1074340347
+	.size	fastsin, .-fastsin
+	.align	2
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	fastcos, %function
+fastcos:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #20
+	str	r0, [fp, #-16]
+	ldr	r3, [fp, #-16]
+	asr	r3, r3, #4
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d6, s15
+	vldr.64	d5, .L78
+	vdiv.f64	d7, d6, d5
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-8]
+	cmp	r3, #0
+	bge	.L76
+	ldr	r3, [fp, #-8]
+	rsb	r3, r3, #512
+	ubfx	r2, r3, #0, #11
+	movw	r3, #:lower16:fast_cossin_table
+	movt	r3, #:upper16:fast_cossin_table
+	ldr	r3, [r3, r2, lsl #2]
+	b	.L77
+.L76:
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #512
+	ubfx	r2, r3, #0, #11
+	movw	r3, #:lower16:fast_cossin_table
+	movt	r3, #:upper16:fast_cossin_table
+	ldr	r3, [r3, r2, lsl #2]
+.L77:
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+.L79:
+	.align	3
+.L78:
+	.word	1413754136
+	.word	1074340347
+	.size	fastcos, .-fastcos
+	.global	__aeabi_idiv
+	.align	2
+	.global	calculateScaleFactor
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	calculateScaleFactor, %function
+calculateScaleFactor:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #24
+	str	r0, [fp, #-24]
+	str	r1, [fp, #-28]
+	ldr	r3, [fp, #-24]
+	cmp	r3, #0
+	rsblt	r3, r3, #0
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vmov.f64	d0, d7
+	bl	log
+	vmov.f64	d5, d0
+	vldr.64	d7, .L84
+	vdiv.f64	d6, d5, d7
+	vmov.f64	d0, d6
+	bl	ceil
+	vmov.f64	d7, d0
+	vmov.f64	d1, d7
+	vmov.f64	d0, #2.0e+0
+	bl	pow
+	vmov.f64	d7, d0
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-12]
+	ldr	r3, [fp, #-28]
+	cmp	r3, #0
+	rsblt	r3, r3, #0
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vmov.f64	d0, d7
+	bl	log
+	vmov.f64	d5, d0
+	vldr.64	d7, .L84
+	vdiv.f64	d6, d5, d7
+	vmov.f64	d0, d6
+	bl	ceil
+	vmov.f64	d7, d0
+	vmov.f64	d1, d7
+	vmov.f64	d0, #2.0e+0
+	bl	pow
+	vmov.f64	d7, d0
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-16]
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-16]
+	cmp	r2, r3
+	ble	.L81
+	ldr	r3, [fp, #-12]
+	str	r3, [fp, #-8]
+	b	.L82
+.L81:
+	ldr	r3, [fp, #-16]
+	str	r3, [fp, #-8]
+.L82:
+	ldr	r1, [fp, #-8]
+	mov	r0, #32768
+	bl	__aeabi_idiv
+	mov	r3, r0
+	str	r3, [fp, #-20]
+	ldr	r3, [fp, #-20]
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+.L85:
+	.align	3
+.L84:
+	.word	-17155601
+	.word	1072049730
+	.size	calculateScaleFactor, .-calculateScaleFactor
+	.align	2
+	.global	fastArcTan
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	fastArcTan, %function
+fastArcTan:
+	@ args = 0, pretend = 0, frame = 40
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #40
+	vstr.32	s0, [fp, #-40]
+	mov	r3, #32768
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s14, s15
+	vldr.32	s15, [fp, #-40]
+	vmul.f32	s15, s14, s15
+	vcvt.s32.f32	s15, s15
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-12]
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vmov.f64	d6, #5.0e-1
+	vmul.f64	d7, d7, d6
+	vmov.f64	d0, d7
+	bl	round
+	vmov.f64	d7, d0
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-16]
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-20]
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vldr.64	d6, .L91
+	vmul.f64	d7, d7, d6
+	vmov.f64	d0, d7
+	bl	round
+	vmov.f64	d7, d0
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-24]
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vldr.64	d6, .L91+8
+	vmul.f64	d7, d7, d6
+	vmov.f64	d0, d7
+	bl	round
+	vmov.f64	d7, d0
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-28]
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vldr.64	d6, .L91+16
+	vmul.f64	d7, d7, d6
+	vmov.f64	d0, d7
+	bl	round
+	vmov.f64	d7, d0
+	vcvt.s32.f64	s15, d7
+	vmov	r3, s15	@ int
+	str	r3, [fp, #-32]
+	mov	r3, #0
+	str	r3, [fp, #-36]
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-16]
+	cmp	r2, r3
+	ble	.L87
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-20]
+	cmp	r2, r3
+	bgt	.L87
+	ldr	r3, [fp, #-28]
+	ldr	r2, [fp, #-12]
+	mul	r3, r2, r3
+	asr	r3, r3, #16
+	str	r3, [fp, #-36]
+	ldr	r2, [fp, #-36]
+	ldr	r3, [fp, #-24]
+	add	r3, r2, r3
+	str	r3, [fp, #-36]
+	ldr	r3, [fp, #-36]
+	b	.L88
+.L87:
+	ldr	r3, [fp, #-16]
+	rsb	r3, r3, #0
+	ldr	r2, [fp, #-12]
+	cmp	r2, r3
+	blt	.L89
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-16]
+	cmp	r2, r3
+	bgt	.L89
+	ldr	r3, [fp, #-32]
+	ldr	r2, [fp, #-12]
+	mul	r3, r2, r3
+	str	r3, [fp, #-36]
+	ldr	r3, [fp, #-36]
+	asr	r3, r3, #16
+	b	.L88
+.L89:
+	ldr	r3, [fp, #-16]
+	rsb	r3, r3, #0
+	ldr	r2, [fp, #-12]
+	cmp	r2, r3
+	bge	.L90
+	ldr	r3, [fp, #-20]
+	rsb	r3, r3, #0
+	ldr	r2, [fp, #-12]
+	cmp	r2, r3
+	blt	.L90
+	ldr	r3, [fp, #-28]
+	ldr	r2, [fp, #-12]
+	mul	r3, r2, r3
+	asr	r3, r3, #16
+	str	r3, [fp, #-36]
+	ldr	r2, [fp, #-36]
+	ldr	r3, [fp, #-24]
+	sub	r3, r2, r3
+	str	r3, [fp, #-36]
+	ldr	r3, [fp, #-36]
+	b	.L88
+.L90:
+	mov	r3, #0
+.L88:
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+.L92:
+	.align	3
+.L91:
+	.word	1443109011
+	.word	1069690126
+	.word	-481036337
+	.word	1071946661
+	.word	240518169
+	.word	1072542253
+	.size	fastArcTan, .-fastArcTan
+	.align	2
+	.global	newArctan
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	newArctan, %function
+newArctan:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #24
+	str	r0, [fp, #-24]
+	str	r1, [fp, #-28]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-24]
+	str	r3, [fp, #-12]
+	ldr	r3, [fp, #-28]
+	str	r3, [fp, #-16]
+	ldr	r3, [fp, #-24]
+	cmp	r3, #0
+	bge	.L94
+	ldr	r3, [fp, #-24]
+	rsb	r3, r3, #0
+	str	r3, [fp, #-12]
+.L94:
+	ldr	r3, [fp, #-28]
+	cmp	r3, #0
+	bge	.L95
+	ldr	r3, [fp, #-28]
+	rsb	r3, r3, #0
+	str	r3, [fp, #-16]
+.L95:
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-16]
+	cmp	r2, r3
+	ble	.L96
+	ldr	r3, [fp, #-28]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s13, s15
+	ldr	r3, [fp, #-24]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s14, s15
+	vdiv.f32	s15, s13, s14
+	vstr.32	s15, [fp, #-20]
+	vldr.32	s15, [fp, #-20]
+	vcmpe.f32	s15, #0
+	vmrs	APSR_nzcv, FPSCR
+	bpl	.L103
+	vldr.32	s0, [fp, #-20]
+	bl	fastArcTan
+	mov	r2, r0
+	movw	r3, #39801
+	movt	r3, 65535
+	sub	r3, r3, r2
+	str	r3, [fp, #-8]
+	b	.L100
+.L103:
+	vldr.32	s0, [fp, #-20]
+	bl	fastArcTan
+	mov	r3, r0
+	rsb	r3, r3, #25600
+	add	r3, r3, #135
+	str	r3, [fp, #-8]
+	b	.L100
+.L96:
+	ldr	r3, [fp, #-24]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s13, s15
+	ldr	r3, [fp, #-28]
+	vmov	s15, r3	@ int
+	vcvt.f32.s32	s14, s15
+	vdiv.f32	s15, s13, s14
+	vstr.32	s15, [fp, #-20]
+	vldr.32	s0, [fp, #-20]
+	bl	fastArcTan
+	str	r0, [fp, #-8]
+.L100:
+	ldr	r3, [fp, #-8]
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	newArctan, .-newArctan
+	.align	2
+	.global	getThetaR
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	getThetaR, %function
+getThetaR:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #20
+	str	r0, [fp, #-16]
+	str	r1, [fp, #-20]
+	ldr	r2, [fp, #-16]
+	ldr	r3, [fp, #-20]
+	add	r3, r2, r3
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-8]
+	asr	r3, r3, #1
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	getThetaR, .-getThetaR
+	.align	2
+	.global	getThetaL
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	getThetaL, %function
+getThetaL:
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #20
+	str	r0, [fp, #-16]
+	str	r1, [fp, #-20]
+	ldr	r2, [fp, #-16]
+	ldr	r3, [fp, #-20]
+	sub	r3, r2, r3
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-8]
+	asr	r3, r3, #1
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	getThetaL, .-getThetaL
+	.align	2
+	.global	getThetaSum
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	getThetaSum, %function
+getThetaSum:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #24
+	str	r0, [fp, #-24]
+	ldr	r3, [fp, #-24]
+	ldr	r2, [r3, #4]
+	ldr	r3, [fp, #-24]
+	add	r3, r3, #8
+	ldr	r3, [r3]
+	add	r3, r2, r3
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-24]
+	add	r3, r3, #8
+	ldr	r2, [r3, #4]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3]
+	sub	r3, r2, r3
+	str	r3, [fp, #-12]
+	ldr	r1, [fp, #-12]
+	ldr	r0, [fp, #-8]
+	bl	newArctan
+	str	r0, [fp, #-16]
+	ldr	r3, [fp, #-16]
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	getThetaSum, .-getThetaSum
+	.align	2
+	.global	getThetaDiff
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	getThetaDiff, %function
+getThetaDiff:
+	@ args = 0, pretend = 0, frame = 24
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #24
+	str	r0, [fp, #-24]
+	ldr	r3, [fp, #-24]
+	add	r3, r3, #8
+	ldr	r2, [r3]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3, #4]
+	sub	r3, r2, r3
+	str	r3, [fp, #-8]
+	ldr	r3, [fp, #-24]
+	add	r3, r3, #8
+	ldr	r2, [r3, #4]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3]
+	add	r3, r2, r3
+	str	r3, [fp, #-12]
+	ldr	r1, [fp, #-12]
+	ldr	r0, [fp, #-8]
+	bl	newArctan
+	str	r0, [fp, #-16]
+	ldr	r3, [fp, #-16]
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	getThetaDiff, .-getThetaDiff
+	.align	2
+	.global	getLMatrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	getLMatrix, %function
+getLMatrix:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{r4, fp, lr}
+	add	fp, sp, #8
+	sub	sp, sp, #12
+	str	r0, [fp, #-16]
+	str	r1, [fp, #-20]
+	ldr	r0, [fp, #-16]
+	bl	fastcos
+	mov	r2, r0
+	ldr	r3, [fp, #-20]
+	str	r2, [r3]
+	ldr	r0, [fp, #-16]
+	bl	fastsin
+	mov	r3, r0
+	rsb	r2, r3, #0
+	ldr	r3, [fp, #-20]
+	str	r2, [r3, #4]
+	ldr	r3, [fp, #-20]
+	add	r4, r3, #8
+	ldr	r0, [fp, #-16]
+	bl	fastsin
+	mov	r3, r0
+	str	r3, [r4]
+	ldr	r3, [fp, #-20]
+	add	r4, r3, #8
+	ldr	r0, [fp, #-16]
+	bl	fastcos
+	mov	r3, r0
+	str	r3, [r4, #4]
+	nop
+	sub	sp, fp, #8
+	@ sp needed
+	pop	{r4, fp, pc}
+	.size	getLMatrix, .-getLMatrix
+	.align	2
+	.global	getRMatrix
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	getRMatrix, %function
+getRMatrix:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{r4, fp, lr}
+	add	fp, sp, #8
+	sub	sp, sp, #12
+	str	r0, [fp, #-16]
+	str	r1, [fp, #-20]
+	ldr	r0, [fp, #-16]
+	bl	fastcos
+	mov	r2, r0
+	ldr	r3, [fp, #-20]
+	str	r2, [r3]
+	ldr	r0, [fp, #-16]
+	bl	fastsin
+	mov	r3, r0
+	rsb	r2, r3, #0
+	ldr	r3, [fp, #-20]
+	str	r2, [r3, #4]
+	ldr	r3, [fp, #-20]
+	add	r4, r3, #8
+	ldr	r0, [fp, #-16]
+	bl	fastsin
+	mov	r3, r0
+	str	r3, [r4]
+	ldr	r3, [fp, #-20]
+	add	r4, r3, #8
+	ldr	r0, [fp, #-16]
+	bl	fastcos
+	mov	r3, r0
+	str	r3, [r4, #4]
+	nop
+	sub	sp, fp, #8
+	@ sp needed
+	pop	{r4, fp, pc}
+	.size	getRMatrix, .-getRMatrix
+	.align	2
+	.global	Transpose_4x4
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	Transpose_4x4, %function
+Transpose_4x4:
+	@ args = 0, pretend = 0, frame = 80
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #80
+	str	r0, [fp, #-80]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L115
+.L118:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L116
+.L117:
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-80]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-12]
+	ldr	r2, [r3, r2, lsl #2]
+	ldr	r3, [fp, #-12]
+	lsl	r1, r3, #2
+	ldr	r3, [fp, #-8]
+	add	r3, r1, r3
+	lsl	r3, r3, #2
+	sub	r1, fp, #4
+	add	r3, r1, r3
+	str	r2, [r3, #-72]
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L116:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L117
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L115:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #3
+	ble	.L118
+	sub	r3, fp, #76
+	mov	r2, #64
+	mov	r1, r3
+	ldr	r0, [fp, #-80]
+	bl	memcpy
+	nop
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	Transpose_4x4, .-Transpose_4x4
+	.align	2
+	.global	Transpos_2x2
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	Transpos_2x2, %function
+Transpos_2x2:
+	@ args = 0, pretend = 0, frame = 32
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #32
+	str	r0, [fp, #-32]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L120
+.L123:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L121
+.L122:
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #3
+	ldr	r2, [fp, #-32]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-12]
+	ldr	r2, [r3, r2, lsl #2]
+	ldr	r3, [fp, #-12]
+	lsl	r1, r3, #1
+	ldr	r3, [fp, #-8]
+	add	r3, r1, r3
+	lsl	r3, r3, #2
+	sub	r1, fp, #4
+	add	r3, r1, r3
+	str	r2, [r3, #-24]
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L121:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #1
+	ble	.L122
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L120:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #1
+	ble	.L123
+	sub	r3, fp, #28
+	mov	r2, #16
+	mov	r1, r3
+	ldr	r0, [fp, #-32]
+	bl	memcpy
+	nop
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	Transpos_2x2, .-Transpos_2x2
+	.align	2
+	.global	matrixMultiply
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	matrixMultiply, %function
+matrixMultiply:
+	@ args = 0, pretend = 0, frame = 48
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #52
+	str	r0, [fp, #-40]
+	str	r1, [fp, #-44]
+	str	r2, [fp, #-48]
+	mov	r3, #4
+	str	r3, [fp, #-16]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L125
+.L128:
+	mov	r3, #0
+	str	r3, [fp, #-12]
+	b	.L126
+.L127:
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-40]
+	add	r3, r2, r3
+	ldr	r3, [r3]
+	ldr	r2, [fp, #-44]
+	ldr	r1, [fp, #-12]
+	ldr	r2, [r2, r1, lsl #2]
+	mul	r3, r2, r3
+	asr	r3, r3, #2
+	str	r3, [fp, #-20]
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-40]
+	add	r3, r2, r3
+	ldr	r3, [r3, #4]
+	ldr	r2, [fp, #-44]
+	add	r2, r2, #16
+	ldr	r1, [fp, #-12]
+	ldr	r2, [r2, r1, lsl #2]
+	mul	r3, r2, r3
+	asr	r3, r3, #2
+	str	r3, [fp, #-24]
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-40]
+	add	r3, r2, r3
+	ldr	r3, [r3, #8]
+	ldr	r2, [fp, #-44]
+	add	r2, r2, #32
+	ldr	r1, [fp, #-12]
+	ldr	r2, [r2, r1, lsl #2]
+	mul	r3, r2, r3
+	asr	r3, r3, #2
+	str	r3, [fp, #-28]
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-40]
+	add	r3, r2, r3
+	ldr	r3, [r3, #12]
+	ldr	r2, [fp, #-44]
+	add	r2, r2, #48
+	ldr	r1, [fp, #-12]
+	ldr	r2, [r2, r1, lsl #2]
+	mul	r3, r2, r3
+	asr	r3, r3, #2
+	str	r3, [fp, #-32]
+	ldr	r2, [fp, #-20]
+	ldr	r3, [fp, #-24]
+	add	r2, r2, r3
+	ldr	r3, [fp, #-28]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-32]
+	add	r3, r2, r3
+	str	r3, [fp, #-36]
+	ldr	r3, [fp, #-36]
+	asr	r3, r3, #13
+	str	r3, [fp, #-36]
+	ldr	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #-48]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-12]
+	ldr	r1, [fp, #-36]
+	str	r1, [r3, r2, lsl #2]
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L126:
+	ldr	r2, [fp, #-12]
+	ldr	r3, [fp, #-16]
+	cmp	r2, r3
+	blt	.L127
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L125:
+	ldr	r2, [fp, #-8]
+	ldr	r3, [fp, #-16]
+	cmp	r2, r3
+	blt	.L128
+	nop
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
+	.size	matrixMultiply, .-matrixMultiply
+	.align	2
+	.global	sweep
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	sweep, %function
+sweep:
+	@ args = 4, pretend = 0, frame = 400
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #400
+	str	r0, [fp, #-392]
+	str	r1, [fp, #-396]
+	str	r2, [fp, #-400]
+	str	r3, [fp, #-404]
+	ldr	r3, [fp, #-392]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #4]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-392]
+	ldr	r3, [r3, r2, lsl #2]
+	str	r3, [fp, #-36]
+	ldr	r3, [fp, #-392]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #4]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-396]
+	ldr	r3, [r3, r2, lsl #2]
+	str	r3, [fp, #-32]
+	ldr	r3, [fp, #-396]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #4]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-392]
+	ldr	r3, [r3, r2, lsl #2]
+	str	r3, [fp, #-28]
+	ldr	r3, [fp, #-396]
+	lsl	r3, r3, #4
+	ldr	r2, [fp, #4]
+	add	r3, r2, r3
+	ldr	r2, [fp, #-396]
+	ldr	r3, [r3, r2, lsl #2]
+	str	r3, [fp, #-24]
+	sub	r3, fp, #36
+	mov	r0, r3
+	bl	getThetaDiff
+	str	r0, [fp, #-8]
+	sub	r3, fp, #36
+	mov	r0, r3
+	bl	getThetaSum
+	str	r0, [fp, #-12]
+	ldr	r1, [fp, #-8]
+	ldr	r0, [fp, #-12]
+	bl	getThetaL
+	str	r0, [fp, #-16]
+	ldr	r1, [fp, #-8]
+	ldr	r0, [fp, #-12]
+	bl	getThetaR
+	str	r0, [fp, #-20]
+	sub	r3, fp, #68
+	mov	r1, r3
+	ldr	r0, [fp, #-16]
+	bl	getLMatrix
+	sub	r3, fp, #52
+	mov	r1, r3
+	ldr	r0, [fp, #-20]
+	bl	getRMatrix
+	sub	r3, fp, #132
+	mov	r1, #32768
+	mov	r0, r3
+	bl	gen_identity_matrix
+	ldr	r1, [fp, #-68]
+	ldr	r2, [fp, #-392]
+	mov	r3, r2
+	lsl	r3, r3, #2
+	add	r3, r3, r2
+	lsl	r3, r3, #2
+	sub	r2, fp, #4
+	add	r3, r2, r3
+	sub	r3, r3, #128
+	str	r1, [r3]
+	ldr	r2, [fp, #-64]
+	ldr	r3, [fp, #-392]
+	lsl	r1, r3, #2
+	ldr	r3, [fp, #-396]
+	add	r3, r1, r3
+	lsl	r3, r3, #2
+	sub	r1, fp, #4
+	add	r3, r1, r3
+	str	r2, [r3, #-128]
+	ldr	r2, [fp, #-60]
+	ldr	r3, [fp, #-396]
+	lsl	r1, r3, #2
+	ldr	r3, [fp, #-392]
+	add	r3, r1, r3
+	lsl	r3, r3, #2
+	sub	r1, fp, #4
+	add	r3, r1, r3
+	str	r2, [r3, #-128]
+	ldr	r1, [fp, #-56]
+	ldr	r2, [fp, #-396]
+	mov	r3, r2
+	lsl	r3, r3, #2
+	add	r3, r3, r2
+	lsl	r3, r3, #2
+	sub	r2, fp, #4
+	add	r3, r2, r3
+	sub	r3, r3, #128
+	str	r1, [r3]
+	sub	r3, fp, #196
+	mov	r1, #32768
+	mov	r0, r3
+	bl	gen_identity_matrix
+	ldr	r1, [fp, #-52]
+	ldr	r2, [fp, #-392]
+	mov	r3, r2
+	lsl	r3, r3, #2
+	add	r3, r3, r2
+	lsl	r3, r3, #2
+	sub	r2, fp, #4
+	add	r3, r2, r3
+	sub	r3, r3, #192
+	str	r1, [r3]
+	ldr	r2, [fp, #-48]
+	ldr	r3, [fp, #-392]
+	lsl	r1, r3, #2
+	ldr	r3, [fp, #-396]
+	add	r3, r1, r3
+	lsl	r3, r3, #2
+	sub	r1, fp, #4
+	add	r3, r1, r3
+	str	r2, [r3, #-192]
+	ldr	r2, [fp, #-44]
+	ldr	r3, [fp, #-396]
+	lsl	r1, r3, #2
+	ldr	r3, [fp, #-392]
+	add	r3, r1, r3
+	lsl	r3, r3, #2
+	sub	r1, fp, #4
+	add	r3, r1, r3
+	str	r2, [r3, #-192]
+	ldr	r1, [fp, #-40]
+	ldr	r2, [fp, #-396]
+	mov	r3, r2
+	lsl	r3, r3, #2
+	add	r3, r3, r2
+	lsl	r3, r3, #2
+	sub	r2, fp, #4
+	add	r3, r2, r3
+	sub	r3, r3, #192
+	str	r1, [r3]
+	sub	r2, fp, #260
+	sub	r3, fp, #196
+	ldr	r1, [fp, #-404]
+	mov	r0, r3
+	bl	matrixMultiply
+	sub	r3, fp, #260
+	mov	r2, #64
+	mov	r1, r3
+	ldr	r0, [fp, #-404]
+	bl	memcpy
+	sub	r3, fp, #196
+	mov	r0, r3
+	bl	Transpose_4x4
+	sub	r2, fp, #324
+	sub	r3, fp, #132
+	ldr	r1, [fp, #4]
+	mov	r0, r3
+	bl	matrixMultiply
+	sub	r1, fp, #196
+	sub	r3, fp, #324
+	ldr	r2, [fp, #4]
+	mov	r0, r3
+	bl	matrixMultiply
+	sub	r3, fp, #132
+	mov	r0, r3
+	bl	Transpose_4x4
+	sub	r2, fp, #388
+	sub	r3, fp, #132
+	mov	r1, r3
+	ldr	r0, [fp, #-400]
+	bl	matrixMultiply
+	sub	r3, fp, #388
+	mov	r2, #64
+	mov	r1, r3
+	ldr	r0, [fp, #-400]
+	bl	memcpy
+	nop
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+	.size	sweep, .-sweep
+	.section	.rodata
+	.align	2
+.LC2:
+	.ascii	"\012Original Matrix\000"
+	.align	2
+.LC3:
+	.ascii	"\012\012Final M:\000"
+	.align	2
+.LC4:
+	.ascii	"\012\012Final U:\000"
+	.align	2
+.LC5:
+	.ascii	"\012\012Final V:\000"
+	.text
+	.align	2
+	.global	main
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	main, %function
+main:
+	@ args = 0, pretend = 0, frame = 480
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #488
+	str	r0, [fp, #-480]
+	str	r1, [fp, #-484]
+	sub	r3, fp, #216
+	mov	r0, r3
+	bl	gen_M_matrix
+	sub	ip, fp, #280
+	sub	lr, fp, #216
+	ldmia	lr!, {r0, r1, r2, r3}
+	stmia	ip!, {r0, r1, r2, r3}
+	ldmia	lr!, {r0, r1, r2, r3}
+	stmia	ip!, {r0, r1, r2, r3}
+	ldmia	lr!, {r0, r1, r2, r3}
+	stmia	ip!, {r0, r1, r2, r3}
+	ldm	lr, {r0, r1, r2, r3}
+	stm	ip, {r0, r1, r2, r3}
+	movw	r0, #:lower16:.LC2
+	movt	r0, #:upper16:.LC2
+	bl	puts
+	sub	r3, fp, #280
+	mov	r0, r3
+	bl	print_matrix
+	sub	r3, fp, #216
+	mov	r0, r3
+	bl	get_min
+	vstr.32	s0, [fp, #-20]
+	sub	r3, fp, #216
+	mov	r0, r3
+	bl	get_max
+	vstr.32	s0, [fp, #-24]
+	vldr.32	s15, [fp, #-20]
+	vcvt.s32.f32	s14, s15
+	vldr.32	s15, [fp, #-24]
+	vcvt.s32.f32	s15, s15
+	vmov	r1, s15	@ int
+	vmov	r0, s14	@ int
+	bl	calculateScaleFactor
+	mov	r2, r0
+	movw	r3, #:lower16:scaleFactor
+	movt	r3, #:upper16:scaleFactor
+	str	r2, [r3]
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L131
+.L132:
+	ldr	r3, [fp, #-8]
+	vmov	s15, r3	@ int
+	vcvt.f64.s32	d7, s15
+	vldr.64	d6, .L140
+	vmul.f64	d7, d7, d6
+	vldr.64	d6, .L140+8
+	vdiv.f64	d5, d7, d6
+	vmov.f64	d0, d5
+	bl	sin
+	vmov.f64	d6, d0
+	vldr.64	d7, .L140+16
+	vmul.f64	d7, d6, d7
+	vcvt.s32.f64	s15, d7
+	vmov	r1, s15	@ int
+	movw	r3, #:lower16:fast_cossin_table
+	movt	r3, #:upper16:fast_cossin_table
+	ldr	r2, [fp, #-8]
+	str	r1, [r3, r2, lsl #2]
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L131:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #2048
+	blt	.L132
+	movw	r3, #:lower16:scaleFactor
+	movt	r3, #:upper16:scaleFactor
+	ldr	r2, [r3]
+	sub	r1, fp, #344
+	sub	r3, fp, #216
+	mov	r0, r3
+	bl	scale_matrix
+	sub	r3, fp, #408
+	mov	r1, #32768
+	mov	r0, r3
+	bl	gen_identity_matrix
+	sub	r3, fp, #472
+	mov	r1, #32768
+	mov	r0, r3
+	bl	gen_identity_matrix
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L133
+.L138:
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L134
+.L137:
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+	b	.L135
+.L136:
+	sub	r1, fp, #472
+	sub	r2, fp, #408
+	sub	r3, fp, #344
+	str	r3, [sp]
+	mov	r3, r1
+	ldr	r1, [fp, #-12]
+	ldr	r0, [fp, #-8]
+	bl	sweep
+	ldr	r3, [fp, #-12]
+	add	r3, r3, #1
+	str	r3, [fp, #-12]
+.L135:
+	ldr	r3, [fp, #-12]
+	cmp	r3, #3
+	ble	.L136
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
+.L134:
+	ldr	r3, [fp, #-8]
+	cmp	r3, #2
+	ble	.L137
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L133:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #4
+	ble	.L138
+	sub	r3, fp, #472
+	mov	r0, r3
+	bl	Transpose_4x4
+	sub	r1, fp, #344
+	sub	r3, fp, #216
+	mov	r2, #8
+	mov	r0, r3
+	bl	un_scale_matrix
+	sub	r1, fp, #408
+	sub	r3, fp, #88
+	mov	r2, #15
+	mov	r0, r3
+	bl	un_scale_matrix
+	sub	r1, fp, #472
+	sub	r3, fp, #152
+	mov	r2, #15
+	mov	r0, r3
+	bl	un_scale_matrix
+	movw	r0, #:lower16:.LC3
+	movt	r0, #:upper16:.LC3
+	bl	puts
+	sub	r3, fp, #216
+	mov	r0, r3
+	bl	print_matrix
+	movw	r0, #:lower16:.LC4
+	movt	r0, #:upper16:.LC4
+	bl	puts
+	sub	r3, fp, #88
+	mov	r0, r3
+	bl	print_matrix
+	movw	r0, #:lower16:.LC5
+	movt	r0, #:upper16:.LC5
+	bl	puts
+	sub	r3, fp, #152
+	mov	r0, r3
+	bl	print_matrix
+	mov	r3, #0
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+.L141:
+	.align	3
+.L140:
+	.word	1413754136
+	.word	1074340347
+	.word	0
+	.word	1083179008
+	.word	0
+	.word	1088421888
+	.size	main, .-main
+	.ident	"GCC: (GNU) 8.1.1 20180626 (Red Hat Cross 8.1.1-3)"
+	.section	.note.GNU-stack,"",%progbits
