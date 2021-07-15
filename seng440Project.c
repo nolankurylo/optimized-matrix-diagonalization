@@ -275,7 +275,7 @@ int getThetaL(int thetaSum, int thetaDiff)
     
     // int thetaL2 = thetaSum - thetaDiff;
 
-    return thetaL2 >> 1;
+    return thetaL2;
 }
 
 int getThetaSum(int subMatrix[2][2])
