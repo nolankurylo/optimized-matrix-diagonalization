@@ -20,9 +20,10 @@ void gen_test_matrix(float M[4][4])
 {
     float max = 500.0;
     srand((unsigned int)time(NULL));
-    for (int i = 0; i < matrix_size; i++)
+    int i,j;
+    for (i^=i; !(i&matrix_size); i++)
     {
-        for (int j = 0; j < matrix_size; j++)
+        for (j^=j; !(j&matrix_size); j++)
         {
             float x = max * ((float)rand() / (float)RAND_MAX - 0.5);
 
@@ -100,74 +101,6 @@ void un_scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFa
     }
 }
 
-float get_max(float M[4][4])
-{
-    float max = M[0][0];
-
-    for (int i = 0; i < matrix_size; i++)
-    {
-        for (int j = 0; j < matrix_size; j++)
-        {
-            if (max < M[i][j])
-            {
-                max = M[i][j];
-            }
-        }
-    }
-    return max;
-}
-
-float get_min(float M[4][4])
-{
-    float min = M[0][0];
-
-    for (int i = 0; i < matrix_size; i++)
-    {
-        for (int j = 0; j < matrix_size; j++)
-        {
-            if (min > M[i][j])
-            {
-                min = M[i][j];
-            }
-        }
-    }
-    return min;
-}
-
-int get_max_int(int M[4][4])
-{
-    int max = M[0][0];
-
-    for (int i = 0; i < matrix_size; i++)
-    {
-        for (int j = 0; j < matrix_size; j++)
-        {
-            if (max < M[i][j])
-            {
-                max = M[i][j];
-            }
-        }
-    }
-    return max;
-}
-
-int get_min_int(int M[4][4])
-{
-    int min = M[0][0];
-
-    for (int i = 0; i < matrix_size; i++)
-    {
-        for (int j = 0; j < matrix_size; j++)
-        {
-            if (min > M[i][j])
-            {
-                min = M[i][j];
-            }
-        }
-    }
-    return min;
-}
-
 void print_matrix(float print_M[4][4])
 {
     for (int i = 0; i < matrix_size; i++)
@@ -243,25 +176,6 @@ int fastcos(int n)
     }
 }
 
-int calculateScaleFactor(int min, int max)
-{
-    int closestPow2Min = pow(2, ceil(log(abs(min)) / log(2)));
-    int closestPow2Max = pow(2, ceil(log(abs(max)) / log(2)));
-
-    int maxPow2;
-
-    if (closestPow2Min > closestPow2Max)
-    {
-        maxPow2 = closestPow2Min;
-    }
-    else
-    {
-        maxPow2 = closestPow2Max;
-    }
-    int SF = (32768) / maxPow2;
-    return SF;
-
-}
 
 int fastArcTan(float arg)
 {
@@ -348,7 +262,18 @@ int getThetaR(int thetaSum, int thetaDiff)
 int getThetaL(int thetaSum, int thetaDiff)
 {
 
-    int thetaL2 = thetaSum - thetaDiff;
+    // add	r0, r0, r1
+    // 	asr	r0, r0, #1
+    // 	bx	lr
+    int thetaL2; 
+    __asm__ (
+        "sub %0, %1, %2\n\t"
+        "asr %0, %0, #1\n\t"
+        : "=r" (thetaL2)
+        : "r" (thetaSum) ,"r" (thetaDiff)
+        );
+    
+    // int thetaL2 = thetaSum - thetaDiff;
 
     return thetaL2 >> 1;
 }
@@ -391,19 +316,23 @@ void getRMatrix(int thetaR, int R[2][2])
 void Transpose_4x4(int matrix[4][4])
 {
     int transpose[4][4];
-    for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
+    int i,j;
+   for (i^=i; !(i&4); i++)
+    {
+        for (j^=j; !(j&4); j++)
         {
             transpose[j][i] = matrix[i][j];
         }
+    }
     memcpy(matrix, transpose, sizeof(transpose));
 }
 
 void Transpos_2x2(int matrix[2][2])
 {
     int transpose[2][2];
-    for (int i = 0; i < 2; ++i)
-        for (int j = 0; j < 2; ++j)
+    int i,j;
+    for (i^=i; !(i&2); i++)
+        for (j^=j; !(j&2); j++)
         {
             transpose[j][i] = matrix[i][j];
         }
@@ -415,11 +344,11 @@ void matrixMultiply(int X[4][4], int Y[4][4], int newM[4][4])
 {
 
     int col1, col2, col3, col4, colSum;
-    int n = 4; // for a 4x4 matrix
+    int i,j; // for a 4x4 matrix
 
-    for (int i = 0; i < n; i++)
+    for (i^=i; !(i&4); i++)
     {
-        for (int j = 0; j < n; j++)
+        for (j^=j; !(j&4); j++)
         {
 
             // 16 bit x 16 bit
@@ -515,11 +444,12 @@ int main(int argc, char *argv[])
     print_matrix(orginalM);
 
     //Get scale factor of the generated matrix
-    float min = get_min(M);
-    float max = get_max(M);
-    scaleFactor = calculateScaleFactor(min, max); // 2^8
+    // float min = get_min(M);
+    // float max = get_max(M);
+    // scaleFactor = calculateScaleFactor(min, max); // 2^8
+    scaleFactor = 256;
 
-    int i, j, k;
+    int i, j;
 
     //Populate the cossin lookup table, will populate 2048 bins with 2^15 scale factor values.
     for (i = 0; i < MAX_CIRCLE_ANGLE; i++)
@@ -531,20 +461,37 @@ int main(int argc, char *argv[])
     int scaled_U[4][4];
     int scaled_V[4][4];
 
-    scale_matrix(M, scaled_M, scaleFactor);
+    
     gen_identity_matrix(scaled_U, 1<<15);
     gen_identity_matrix(scaled_V, 1<<15);
-  
+    scale_matrix(M, scaled_M, scaleFactor);
     //The main loop. This is the implementation of the Cyclical Jacobi Method.
-    for (k = 0; k < 5; k++) // 5 sweeps
+    while(1) // 5 sweeps
     {
-        for (i = 0; i < 3; i++) // 4 rows
+        
+        for (i ^= i; i < 3; i++) // 4 rows
         {
             for (j = i + 1; j < 4; j++) // each column in the row
             {
                 sweep(i, j, scaled_U, scaled_V, scaled_M);
             }
         }
+        int done = 1;
+        for (i ^= i; !(i&4); i++) // 4 rows
+        {
+            for (j ^= j; !(j&4); j++) // each column in the row
+            {
+                if(i == j) continue;
+
+                if(abs(scaled_M[i][j]) >= (256)){
+                    done = 0;
+                }
+            }
+        }
+        if(done){
+            break;
+        }
+
     }
     
     Transpose_4x4(scaled_V);
