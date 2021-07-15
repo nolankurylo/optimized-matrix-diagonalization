@@ -267,7 +267,7 @@ int getThetaL(int thetaSum, int thetaDiff)
     // 	bx	lr
     int thetaL2; 
     __asm__ (
-        "sub %0, %1, %2\n\t"
+        "sub %0, %2, %2\n\t"
         "asr %0, %0, #1\n\t"
         : "=r" (thetaL2)
         : "r" (thetaSum) ,"r" (thetaDiff)
