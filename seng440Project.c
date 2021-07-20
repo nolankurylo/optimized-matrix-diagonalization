@@ -289,17 +289,17 @@ int getThetaL(int thetaSum, int thetaDiff)
     // add	r0, r0, r1
     // asr	r0, r0, #1
 
-    // int thetaL2;
-    // __asm__ (
-    //     "sub %0, %1, %2\n\t"
-    //     "asr %0, %0, #1\n\t"
-    //     : "=r" (thetaL2)
-    //     : "r" (thetaSum) ,"r" (thetaDiff)
-    //     );
-    // return thetaL2;
+    int thetaL2;
+    __asm__ (
+        "sub %0, %1, %2\n\t"
+        "asr %0, %0, #1\n\t"
+        : "=r" (thetaL2)
+        : "r" (thetaSum) ,"r" (thetaDiff)
+        );
+    return thetaL2;
 
-    int thetaL2 = thetaSum - thetaDiff;
-    return thetaL2 >> 1;
+    // int thetaL2 = thetaSum - thetaDiff;
+    // return thetaL2 >> 1;
 }
 
 /** 
