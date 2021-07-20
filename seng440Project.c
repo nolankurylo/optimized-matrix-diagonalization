@@ -10,6 +10,7 @@
 #define HALF_COSSIN_BINS (COSSIN_BINS >> 1)
 #define QUARTER_COSSIN_BINS (COSSIN_BINS >> 2)
 #define MASK_COSSIN_BINS (COSSIN_BINS - 1)
+#define M_PI 3.14159265358979323846
 #define OVER_PI 1 / M_PI // operator strength reduction
 
 int fast_cossin_table[COSSIN_BINS];
@@ -145,10 +146,8 @@ void print_matrix_int(int print_M[matrix_size][matrix_size])
 }
 
 /**
- * Converts an integer type matrix to a floating point type matrix via a scaleFactor
- * @param float_matrix floating point matrix with size 4x4 to be filled
- * @param int_matrix integer matrix with size 4x4 to be scaled down
- * @param scalePower power of 2 to unscale by based on the updated value of the scaleFactor
+ * Approximates the value of sin(x) using an integer look-up table
+ * @param n value that can be scaled to the correct index of the look-up table
  */
 int fastsin(int n)
 {
@@ -165,6 +164,10 @@ int fastsin(int n)
     }
 }
 
+/**
+ * Approximates the value of cos(x) using an integer look-up table
+ * @param n value that can be scaled to the correct index of the look-up table
+ */
 int fastcos(int n)
 {
     int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range
@@ -179,7 +182,12 @@ int fastcos(int n)
     }
 }
 
-int fastArcTan(float arg)
+
+/**
+ * Computes linear piecewise approximation for arctangent function
+ * @param arg value of argument x in arctan(x)
+ */
+int piecewiseLinearApprox(float arg)
 {
     int scale = (1 << 15); // sf of 15 to move up to 16 bit width
     int x = arg * scale;
@@ -216,7 +224,12 @@ int fastArcTan(float arg)
     }
 }
 
-int newArctan(int x, int y)
+/**
+ * Identifies and computes the arctananget eqaution based on x and y coordinates 
+ * @param x coordinate
+ * @param y coordinate
+ */
+int fastArcTan(int x, int y)
 {
     int angle = 0;
     float arg;
@@ -237,17 +250,17 @@ int newArctan(int x, int y)
         arg = (float)y / (float)x;
         if (arg < 0)
         {
-            angle = -(fastArcTan(arg) + ((int)(M_PI * (1 << 13)))); //angle 16bit - shift 3 bit pi to 16 bit
+            angle = -(piecewiseLinearApprox(arg) + ((int)(M_PI * (1 << 13)))); //angle 16bit - shift 3 bit pi to 16 bit
         }
         else
         {
-            angle = ((int)(M_PI * (1 << 13))) - fastArcTan(arg);
+            angle = ((int)(M_PI * (1 << 13))) - piecewiseLinearApprox(arg);
         }
     }
     else
     {
         arg = (float)x / (float)y;
-        angle = fastArcTan(arg);
+        angle = piecewiseLinearApprox(arg);
     }
     return angle;
 }
@@ -298,7 +311,7 @@ int getThetaSum(int subMatrix[subset_matrix_size][subset_matrix_size])
 {
     int x = subMatrix[0][1] + subMatrix[1][0];
     int y = subMatrix[1][1] - subMatrix[0][0];
-    int thetaSum = newArctan(x, y);
+    int thetaSum = fastArcTan(x, y);
     return thetaSum;
 }
 
@@ -312,7 +325,7 @@ int getThetaDiff(int subMatrix[subset_matrix_size][subset_matrix_size])
 
     int x = subMatrix[1][0] - subMatrix[0][1];
     int y = subMatrix[1][1] + subMatrix[0][0];
-    int thetaDiff = newArctan(x, y);
+    int thetaDiff = fastArcTan(x, y);
     return thetaDiff;
 }
 
