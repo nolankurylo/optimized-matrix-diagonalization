@@ -4,35 +4,21 @@
 #include <time.h>
 #include <string.h>
 
-
 #define matrix_size 4
-#define MAX_CIRCLE_ANGLE (1<<11) //How many values we are dividing sin and cos to
-#define HALF_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE / 2)
-#define QUARTER_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE / 4)
-#define MASK_MAX_CIRCLE_ANGLE (MAX_CIRCLE_ANGLE - 1)
+#define subset_matrix_size 2
+#define COSSIN_BINS (1 << 11) //How many values we are dividing sin and cos to
+#define HALF_COSSIN_BINS (COSSIN_BINS >> 1)
+#define QUARTER_COSSIN_BINS (COSSIN_BINS >> 2)
+#define MASK_COSSIN_BINS (COSSIN_BINS - 1)
+#define OVER_PI 1 / M_PI // operator strength reduction
 
+int fast_cossin_table[COSSIN_BINS];
 
-int fast_cossin_table[MAX_CIRCLE_ANGLE];
-int scaleFactor;
-int min_range, max_range;
-
-void gen_test_matrix(float M[4][4])
-{
-    float max = 500.0;
-    srand((unsigned int)time(NULL));
-    int i,j;
-    for (i^=i; !(i&matrix_size); i++)
-    {
-        for (j^=j; !(j&matrix_size); j++)
-        {
-            float x = max * ((float)rand() / (float)RAND_MAX - 0.5);
-
-            M[i][j] = x;
-        }
-    }
-}
-
-void gen_M_matrix(float M[4][4])
+/**
+ * Matrix M initilization
+ * @param M matrix with size 4x4
+ */
+void gen_M_matrix(float M[matrix_size][matrix_size])
 {
     M[0][0] = 31;
     M[0][1] = 77;
@@ -52,16 +38,22 @@ void gen_M_matrix(float M[4][4])
     M[3][3] = -19;
 }
 
-void gen_identity_matrix(int identity[4][4], int scaleFactor)
+/**
+ * Indentity matrix initilization
+ * @param identity matrix with size 4x4 to be filled
+ * @param scaleFactor factor to scale diagonal elements by
+ */
+void gen_identity_matrix(int identity[matrix_size][matrix_size], int scaleFactor)
 {
+    int i, j;
 
-    for (int i = 0; i < 4; i++)
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (j ^= j; !(j & matrix_size); j++)
         {
             if (j == i)
             {
-                identity[j][i] = scaleFactor;
+                identity[j][i] = scaleFactor; // diagonal elements are 1 x scaleFactor
             }
             else
             {
@@ -71,41 +63,56 @@ void gen_identity_matrix(int identity[4][4], int scaleFactor)
     }
 }
 
-void scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFactor)
+/**
+ * Converts a floating point type matrix to an integer type matrix via a scaleFactor
+ * @param float_matrix floating point matrix with size 4x4 to be scaled up
+ * @param int_matrix integer matrix with size 4x4 to be filled 
+ * @param scaleFactor factor to scale diagonal elements by
+ */
+void scale_matrix(float float_matrix[matrix_size][matrix_size], int int_matrix[matrix_size][matrix_size], int scaleFactor)
 {
 
     int i, j;
-    for (i ^= i; !(i & 4); i++)
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (j ^= j; !(j & 4); j++)
+        for (j ^= j; !(j & matrix_size); j++)
         {
-            int_matrix[i][j] = round(scaleFactor * float_matrix[i][j]); // should round this
+            int_matrix[i][j] = round(scaleFactor * float_matrix[i][j]); // rounding to nearest integer for fixed point arithmetic
         }
     }
 }
 
-void un_scale_matrix(float float_matrix[4][4], int int_matrix[4][4], int scaleFactor)
+/**
+ * Converts an integer type matrix to a floating point type matrix via a scaleFactor
+ * @param float_matrix floating point matrix with size 4x4 to be filled
+ * @param int_matrix integer matrix with size 4x4 to be scaled down
+ * @param scalePower power of 2 to unscale by based on the updated value of the scaleFactor
+ */
+void un_scale_matrix(float float_matrix[matrix_size][matrix_size], int int_matrix[matrix_size][matrix_size], int scalePower)
 {
-    int i, j;
+    register int i, j;
 
-    // float floatScale = 1 / (float)scaleFactor;
+    float scale = 1 / (float)(1 << scalePower); // operator strength reduction
 
-    int scale = 1<<scaleFactor;
-
-    for (i ^= i; !(i & 4); i++)
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (j ^= j; !(j & 4); j++)
+        for (j ^= j; !(j & matrix_size); j++)
         {
-            float_matrix[i][j] = (float)int_matrix[i][j]/scale;
+            float_matrix[i][j] = (float)int_matrix[i][j] * scale;
         }
     }
 }
 
-void print_matrix(float print_M[4][4])
+/**
+ * Outputs the contents of a 4x4 matrix to the console in floating-point
+ * @param print_M matrix to be parsed
+ */
+void print_matrix(float print_M[matrix_size][matrix_size])
 {
-    for (int i = 0; i < matrix_size; i++)
+    register int i, j;
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (int j = 0; j < matrix_size; j++)
+        for (j ^= j; !(j & matrix_size); j++)
         {
             printf("%f ", print_M[i][j]);
             if (j == matrix_size - 1)
@@ -116,11 +123,16 @@ void print_matrix(float print_M[4][4])
     }
 }
 
-void print_matrix_int(int print_M[4][4])
+/**
+ * Outputs the contents of a 4x4 matrix to the console in integer
+ * @param print_M matrix to be parsed
+ */
+void print_matrix_int(int print_M[matrix_size][matrix_size])
 {
-    for (int i = 0; i < matrix_size; i++)
+    register int i, j;
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (int j = 0; j < matrix_size; j++)
+        for (j ^= j; !(j & matrix_size); j++)
         {
             printf("%d ", print_M[i][j]);
             if (j == matrix_size - 1)
@@ -132,90 +144,79 @@ void print_matrix_int(int print_M[4][4])
     printf("\n");
 }
 
-
 /**
- * Fast sin computation using the fast cossin table
- * Works between pi and -pi
- * https://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
- * @param n Input angle that is scaled by the scale factor
- * @paramscaleFactorScale scaleFactor for the problem space. If not using scale factor, use scale scaleFactor 1.
+ * Converts an integer type matrix to a floating point type matrix via a scaleFactor
+ * @param float_matrix floating point matrix with size 4x4 to be filled
+ * @param int_matrix integer matrix with size 4x4 to be scaled down
+ * @param scalePower power of 2 to unscale by based on the updated value of the scaleFactor
  */
 int fastsin(int n)
 {
 
-
-    int i = (n >>4) / M_PI; //scale down to a value within the bin range
+    int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range
 
     if (i < 0)
     {
-        return fast_cossin_table[(-((-i) & MASK_MAX_CIRCLE_ANGLE)) + MAX_CIRCLE_ANGLE];
+        return fast_cossin_table[(-((-i) & MASK_COSSIN_BINS)) + COSSIN_BINS];
     }
     else
     {
-        return fast_cossin_table[i & MASK_MAX_CIRCLE_ANGLE];
+        return fast_cossin_table[i & MASK_COSSIN_BINS];
     }
 }
 
-/**
- * Fast cos computation using the fast cossin table
- * https://www.flipcode.com/archives/Fast_Trigonometry_Functions_Using_Lookup_Tables.shtml
- * @param n Input angle that is scaled by the scale factor
- * @param scaleFactor Scale scaleFactor for the problem space. If not using scale factor, use scale scaleFactor 1.
- */
 int fastcos(int n)
 {
-    int i = (n >> 4) / M_PI; //scale down to a value within the bin range
+    int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range
 
     if (i < 0)
     {
-        return fast_cossin_table[((-i) + QUARTER_MAX_CIRCLE_ANGLE) & MASK_MAX_CIRCLE_ANGLE];
+        return fast_cossin_table[((-i) + QUARTER_COSSIN_BINS) & MASK_COSSIN_BINS];
     }
     else
     {
-        return fast_cossin_table[(i + QUARTER_MAX_CIRCLE_ANGLE) & MASK_MAX_CIRCLE_ANGLE];
+        return fast_cossin_table[(i + QUARTER_COSSIN_BINS) & MASK_COSSIN_BINS];
     }
 }
-
 
 int fastArcTan(float arg)
 {
-    int scale = (1<<15); // sf of 15 to move up to 16 bit width
+    int scale = (1 << 15); // sf of 15 to move up to 16 bit width
     int x = arg * scale;
     int min = round(0.5 * scale);
     int max = 1.0 * scale;
 
-    int temp1 = round(0.142 * scale);
+    int temp1 = round(0.142 * scale); // changhe name of these?
     int temp2 = round(0.644 * scale);
     int temp3 = round(0.928 * scale);
     int angle = 0;
 
     if (x > min && x <= max)
     {
-        angle = ((temp2) * x) >> 16; // 32 back to 16 bit, sf 30 to 14
-        angle += (temp1); // add 16 with 16 bit
+        angle = ((temp2)*x) >> 16; // 32 back to 16 bit, sf 30 to 14
+        angle += (temp1);          // add 16 with 16 bit
         return angle;
     }
 
     else if (x >= -min && x <= min)
     {
-        angle = (temp3) * x; // 32 bit
-        return angle >>16; // back to 16 bit, sf 30 to 14
+        angle = (temp3)*x;  // 32 bit
+        return angle >> 16; // back to 16 bit, sf 30 to 14
     }
 
     else if (x < -min && x >= -max)
     {
-        angle = ((temp2) * x) >>16; // 32 back to 16 bit, sf 30 to 14
-        angle -= (temp1); // 16 - 16 bit
+        angle = ((temp2)*x) >> 16; // 32 back to 16 bit, sf 30 to 14
+        angle -= (temp1);          // 16 - 16 bit
         return angle;
     }
     else
     {
         return 0; // error -> should never hit this else
     }
-     //remove this after we figure out scaling
 }
 
-int newArctan(int x, int y) // return float value of arctan (currently not using scale factor)
+int newArctan(int x, int y)
 {
     int angle = 0;
     float arg;
@@ -236,12 +237,11 @@ int newArctan(int x, int y) // return float value of arctan (currently not using
         arg = (float)y / (float)x;
         if (arg < 0)
         {
-            angle = -(fastArcTan(arg) + ((int)(M_PI * (1<<13)))); //angle 16bit - shift 3 bit pi to 16 bit
+            angle = -(fastArcTan(arg) + ((int)(M_PI * (1 << 13)))); //angle 16bit - shift 3 bit pi to 16 bit
         }
         else
         {
-            angle = ((int)(M_PI * (1<<13))) - fastArcTan(arg);
-            
+            angle = ((int)(M_PI * (1 << 13))) - fastArcTan(arg);
         }
     }
     else
@@ -251,7 +251,12 @@ int newArctan(int x, int y) // return float value of arctan (currently not using
     }
     return angle;
 }
-
+/** 
+ * Computes theta R using thetaDiff and thetaSum
+ * @param thetaSum Theta sum is the sumation of theta R and theta L
+ * @param thetaDiff Theta sum is the difference between theta R and theta L
+ * 
+*/
 int getThetaR(int thetaSum, int thetaDiff)
 {
     int thetaR2 = thetaSum + thetaDiff;
@@ -259,26 +264,37 @@ int getThetaR(int thetaSum, int thetaDiff)
     return thetaR2 >> 1;
 }
 
+/** 
+ * Computes theta L using thetaDiff and thetaSum
+ * @param thetaSum Theta sum is the sumation of theta R and theta L
+ * @param thetaDiff Theta sum is the difference between theta R and theta L
+ * 
+*/
 int getThetaL(int thetaSum, int thetaDiff)
 {
 
     // add	r0, r0, r1
-    // 	asr	r0, r0, #1
-    // 	bx	lr
-    int thetaL2; 
-    __asm__ (
-        "sub %0, %1, %2\n\t"
-        "asr %0, %0, #1\n\t"
-        : "=r" (thetaL2)
-        : "r" (thetaSum) ,"r" (thetaDiff)
-        );
-    
-    // int thetaL2 = thetaSum - thetaDiff;
+    // asr	r0, r0, #1
 
-    return thetaL2;
+    // int thetaL2;
+    // __asm__ (
+    //     "sub %0, %1, %2\n\t"
+    //     "asr %0, %0, #1\n\t"
+    //     : "=r" (thetaL2)
+    //     : "r" (thetaSum) ,"r" (thetaDiff)
+    //     );
+    // return thetaL2;
+
+    int thetaL2 = thetaSum - thetaDiff;
+    return thetaL2 >> 1;
 }
 
-int getThetaSum(int subMatrix[2][2])
+/** 
+ * Get theta sum from the current iteration values
+ * @param subMatrix a 2x2 matrix with the values of the current iteration 
+ * 
+*/
+int getThetaSum(int subMatrix[subset_matrix_size][subset_matrix_size])
 {
     int x = subMatrix[0][1] + subMatrix[1][0];
     int y = subMatrix[1][1] - subMatrix[0][0];
@@ -286,7 +302,12 @@ int getThetaSum(int subMatrix[2][2])
     return thetaSum;
 }
 
-int getThetaDiff(int subMatrix[2][2])
+/** 
+ * Get theta diff from the current iteration values
+ * @param subMatrix a 2x2 matrix with the values of the current iteration 
+ * 
+*/
+int getThetaDiff(int subMatrix[subset_matrix_size][subset_matrix_size])
 {
 
     int x = subMatrix[1][0] - subMatrix[0][1];
@@ -295,84 +316,97 @@ int getThetaDiff(int subMatrix[2][2])
     return thetaDiff;
 }
 
-void getLMatrix(int thetaL, int L[2][2])
+/** 
+ * Get the left 2x2 matrix to multiply into M and U
+ * @param thetaL the angle associated with the values of the left matrix
+ * @param L the left matrix to assign the computed sin and cos values to
+ * 
+*/
+void getLMatrix(int thetaL, int L[subset_matrix_size][subset_matrix_size])
 {
-    // Adjust this to assign to indexes that u pass in based on the loop to make V and U
     L[0][0] = fastcos(thetaL);
     L[0][1] = -fastsin(thetaL);
     L[1][0] = fastsin(thetaL);
     L[1][1] = fastcos(thetaL);
 }
 
-void getRMatrix(int thetaR, int R[2][2])
+/** 
+ * Get the left 2x2 matrix to multiply into M and U
+ * @param thetaR the angle associated with the values of the left matrix
+ * @param R the left matrix to assign the computed sin and cos values to
+ * 
+*/
+void getRMatrix(int thetaR, int R[subset_matrix_size][subset_matrix_size])
 {
-    // Adjust this to assign to indexes that u pass in based on the loop to make V and U
     R[0][0] = fastcos(thetaR);
     R[0][1] = -fastsin(thetaR);
     R[1][0] = fastsin(thetaR);
     R[1][1] = fastcos(thetaR);
 }
 
-void Transpose_4x4(int matrix[4][4])
+void Transpose_4x4(int matrix[matrix_size][matrix_size])
 {
-    int transpose[4][4];
-    int i,j;
-   for (i^=i; !(i&4); i++)
+    int transpose[matrix_size][matrix_size];
+    register int i, j;
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (j^=j; !(j&4); j++)
+        for (j ^= j; !(j & matrix_size); j += 2) // Loop unrolling
         {
             transpose[j][i] = matrix[i][j];
+            transpose[j + 1][i] = matrix[i][j + 1];
         }
     }
     memcpy(matrix, transpose, sizeof(transpose));
 }
 
-void Transpos_2x2(int matrix[2][2])
+void Transpos_2x2(int matrix[subset_matrix_size][matrix_size])
 {
-    int transpose[2][2];
-    int i,j;
-    for (i^=i; !(i&2); i++)
-        for (j^=j; !(j&2); j++)
+    int transpose[subset_matrix_size][subset_matrix_size];
+    register int i, j;
+    for (i ^= i; !(i & subset_matrix_size); i++)
+        for (j ^= j; !(j & subset_matrix_size); j += 2) // Loop unrolling
         {
             transpose[j][i] = matrix[i][j];
+            transpose[j + 1][i] = matrix[i][j + 1];
         }
 
     memcpy(matrix, transpose, sizeof(transpose));
 }
 
-void matrixMultiply(int X[4][4], int Y[4][4], int newM[4][4])
+void matrixMultiply(int X[matrix_size][matrix_size], int Y[matrix_size][matrix_size], int newM[matrix_size][matrix_size])
 {
 
     int col1, col2, col3, col4, colSum;
-    int i,j; // for a 4x4 matrix
+    register int i, j;
 
-    for (i^=i; !(i&4); i++)
+    for (i ^= i; !(i & matrix_size); i++)
     {
-        for (j^=j; !(j&4); j++)
+        col1 = (X[i][0] * Y[0][0]) >> 2; // software pipelining
+        col2 = (X[i][1] * Y[1][0]) >> 2;
+        col3 = (X[i][2] * Y[2][0]) >> 2;
+        col4 = (X[i][3] * Y[3][0]) >> 2;
+        colSum = col1 + col2 + col3 + col4;
+        for (j ^= j; !(j & matrix_size); j++)
         {
-
+            newM[i][j] = colSum >> 13;
             // 16 bit x 16 bit
-            col1 = (X[i][0]* Y[0][j] ) >> 2; // shift right 2 for worst case of 4 additions
-            col2 = (X[i][1]* Y[1][j] ) >> 2;
-            col3 = (X[i][2]* Y[2][j] ) >> 2;
-            col4 = (X[i][3]* Y[3][j] ) >> 2;
-            
-            colSum = col1 + col2 + col3+ col4; // 32 bit number - 2 worst-case adjustment = 30 bit number - SF = 
-            colSum >>= 13; // at 28 bits, shift back to scale factor of 15 bits
-            newM[i][j] = colSum;
-            
+            col1 = (X[i][0] * Y[0][j + 1]) >> 2; // shift right 2 for worst case of 4 additions
+            col2 = (X[i][1] * Y[1][j + 1]) >> 2;
+            col3 = (X[i][2] * Y[2][j + 1]) >> 2;
+            col4 = (X[i][3] * Y[3][j + 1]) >> 2;
+
+            colSum = col1 + col2 + col3 + col4; // 32 bit number - 2 worst-case adjustment = 30 bit number - SF =                      // at 28 bits, shift back to scale factor of 15 bits
         }
     }
-
 }
 // i row_idx, j col_idx (i=0, j=1 for pair (1-2))
-void sweep(int row_idx, int col_idx, int U[4][4], int V[4][4], int M[4][4])
+void sweep(int row_idx, int col_idx, int U[matrix_size][matrix_size], int V[matrix_size][matrix_size], int M[matrix_size][matrix_size])
 {
-    
-    int i, j, k;
+
+    register int i, j, k;
 
     //Get 2x2 Matrix of M for current iteration of i and j
-    int M_iteration[2][2];
+    int M_iteration[subset_matrix_size][subset_matrix_size];
     M_iteration[0][0] = M[row_idx][row_idx];
     M_iteration[0][1] = M[row_idx][col_idx];
     M_iteration[1][0] = M[col_idx][row_idx];
@@ -380,60 +414,59 @@ void sweep(int row_idx, int col_idx, int U[4][4], int V[4][4], int M[4][4])
 
     //Get θsum and θdiff for current iteration of i and j
     int thetaDiff = getThetaDiff(M_iteration); //sf 14
-    int thetaSum = getThetaSum(M_iteration); //sf 14
+    int thetaSum = getThetaSum(M_iteration);   //sf 14
 
     //Get left and right rotation angles for current iteration of i and j
     int thetaL = getThetaL(thetaSum, thetaDiff); //sf 14
     int thetaR = getThetaR(thetaSum, thetaDiff); //sf 14
 
     //Get left and right rotation matrices for current iteration of i and j
-    int R_iteration[2][2]; //Will want to make into U and 4x4
-    int L_iteration[2][2];
+    int R_iteration[subset_matrix_size][subset_matrix_size]; //Will want to make into U and 4x4
+    int L_iteration[subset_matrix_size][subset_matrix_size];
     getLMatrix(thetaL, L_iteration); //sf 15
     getRMatrix(thetaR, R_iteration); //sf 15
 
-    
-    int U_iteration[4][4];
-    gen_identity_matrix(U_iteration, 1<<15); // scaled up to 2^16 bit width
+    int U_iteration[matrix_size][matrix_size];
+    gen_identity_matrix(U_iteration, 1 << 15); // scaled up to 2^16 bit width
     //U_i,j -> U_iteration - identity matrix
-    U_iteration[row_idx][row_idx] = L_iteration[0][0]; 
+    U_iteration[row_idx][row_idx] = L_iteration[0][0];
     U_iteration[row_idx][col_idx] = L_iteration[0][1];
     U_iteration[col_idx][row_idx] = L_iteration[1][0];
     U_iteration[col_idx][col_idx] = L_iteration[1][1];
 
     //V_i,j -> V_iteration - identity matrix
-    int V_iteration[4][4];
-    gen_identity_matrix(V_iteration, 1<<15); // scaled up to 2^16 bit width
+    int V_iteration[matrix_size][matrix_size];
+    gen_identity_matrix(V_iteration, 1 << 15); // scaled up to 2^16 bit width
     V_iteration[row_idx][row_idx] = R_iteration[0][0];
     V_iteration[row_idx][col_idx] = R_iteration[0][1];
     V_iteration[col_idx][row_idx] = R_iteration[1][0];
     V_iteration[col_idx][col_idx] = R_iteration[1][1];
-    
+
     // Update V
-    int V_prime[4][4];
+    int V_prime[matrix_size][matrix_size];
     matrixMultiply(V_iteration, V, V_prime); // V' = V_iteration & V
-    memcpy(V, V_prime, sizeof(V_prime)); // V = V'
-    Transpose_4x4(V_iteration); // V_interation^T
+    memcpy(V, V_prime, sizeof(V_prime));     // V = V'
+    Transpose_4x4(V_iteration);              // V_interation^T
 
     // Update M
-    int M_prime[4][4];
+    int M_prime[matrix_size][matrix_size];
     matrixMultiply(U_iteration, M, M_prime); // M' = U_iteration * M * V_iteration^T
     matrixMultiply(M_prime, V_iteration, M); // M = M'
-    
+
     // Update U
-    int U_prime[4][4];
-    Transpose_4x4(U_iteration); // U_iteration^T
+    int U_prime[matrix_size][matrix_size];
+    Transpose_4x4(U_iteration);              // U_iteration^T
     matrixMultiply(U, U_iteration, U_prime); // U' = U * U_iteration^T
-    memcpy(U, U_prime, sizeof(U_prime)); // U = U'
+    memcpy(U, U_prime, sizeof(U_prime));     // U = U'
 }
 
 int main(int argc, char *argv[])
 {
 
-    float U[4][4];
-    float V[4][4];
-    float M[4][4];
-    float orginalM[4][4];
+    float U[matrix_size][matrix_size];
+    float V[matrix_size][matrix_size];
+    float M[matrix_size][matrix_size];
+    float orginalM[matrix_size][matrix_size];
     //Will want to make into V and 4x4
 
     // Generate the M matrix and save a copy in originalM
@@ -443,65 +476,62 @@ int main(int argc, char *argv[])
     printf("\nOriginal Matrix\n");
     print_matrix(orginalM);
 
-    //Get scale factor of the generated matrix
-    // float min = get_min(M);
-    // float max = get_max(M);
-    // scaleFactor = calculateScaleFactor(min, max); // 2^8
-    scaleFactor = 256;
+    int scaleFactor = 256; // 2^8 - calculated offline
 
     int i, j;
 
     //Populate the cossin lookup table, will populate 2048 bins with 2^15 scale factor values.
-    for (i = 0; i < MAX_CIRCLE_ANGLE; i++)
+    for (i = 0; i < COSSIN_BINS; i++)
     {
-        fast_cossin_table[i] = (int)(sin((double)i * M_PI / HALF_MAX_CIRCLE_ANGLE) * (1<<15));
+        fast_cossin_table[i] = (int)(sin((double)i * M_PI / HALF_COSSIN_BINS) * (1 << 15));
     }
 
-    int scaled_M[4][4];
-    int scaled_U[4][4];
-    int scaled_V[4][4];
+    int scaled_M[matrix_size][matrix_size];
+    int scaled_U[matrix_size][matrix_size];
+    int scaled_V[matrix_size][matrix_size];
 
-    
-    gen_identity_matrix(scaled_U, 1<<15);
-    gen_identity_matrix(scaled_V, 1<<15);
+    gen_identity_matrix(scaled_U, 1 << 15);
+    gen_identity_matrix(scaled_V, 1 << 15);
     scale_matrix(M, scaled_M, scaleFactor);
     //The main loop. This is the implementation of the Cyclical Jacobi Method.
-    while(1) // 5 sweeps
+    while (1) // 5 sweeps
     {
-        
+
         for (i ^= i; i < 3; i++) // 4 rows
         {
-            for (j = i + 1; j < 4; j++) // each column in the row
+            for (j = i + 1; j < matrix_size; j++) // each column in the row
             {
                 sweep(i, j, scaled_U, scaled_V, scaled_M);
             }
         }
         int done = 1;
-        for (i ^= i; !(i&4); i++) // 4 rows
+        for (i ^= i; !(i & matrix_size); i++) // 4 rows
         {
-            for (j ^= j; !(j&4); j++) // each column in the row
+            for (j ^= j; !(j & matrix_size); j++) // each column in the row
             {
-                if(i == j) continue;
+                if (i == j)
+                    continue;
 
-                if(abs(scaled_M[i][j]) >= (256)){
+                if (abs(scaled_M[i][j]) >= (scaleFactor))
+                {
                     done = 0;
                 }
             }
         }
-        if(done){
+        if (done)
+        {
             break;
         }
-
     }
-    
+
     Transpose_4x4(scaled_V);
 
-    un_scale_matrix(M, scaled_M, 8); // SF = 2^8
+    un_scale_matrix(M, scaled_M, 8);  // SF = 2^8
     un_scale_matrix(U, scaled_U, 15); // SF = 2^15
     un_scale_matrix(V, scaled_V, 15); // SF = 2^15
 
     printf("\n\nFinal M:\n");
-    
+
     print_matrix(M);
     printf("\n\nFinal U:\n");
 
