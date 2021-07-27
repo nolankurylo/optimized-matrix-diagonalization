@@ -152,14 +152,18 @@ void printMatrixInt(int print_M[matrixSize][matrixSize])
 int fastSin(int n)
 {
 
-    int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range
+    int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range for sin.
+    //Convert regular range of sin (0-2pi) to our range.
 
     if (i < 0)
     {
+        // Mask as sin is periodic, only need to look at current period, convert back after. now in range -max, 0
+        // Convert from negative to positive by adding 1 period, sin(x + 2pi) = sin(x), now in range 0, max
         return fastCossinTable[(-((-i) & MASK_COSSIN_BINS)) + COSSIN_BINS];
     }
     else
     {
+        // mask as periodic so only need current period. now in range 0, max
         return fastCossinTable[i & MASK_COSSIN_BINS];
     }
 }
@@ -170,18 +174,23 @@ int fastSin(int n)
  */
 int fastCos(int n)
 {
-    int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range
+    int i = (n >> 4) * OVER_PI; //scale down to a value within the bin range for sin.
+    //Convert regular range of sin (0-2pi) to our range.
 
     if (i < 0)
     {
+        // convert from negative to positive as cos(-x) = cos(x)
+        // cos(x) = sin(x + pi/2) so sin of value plus a quarter of max angle is equivalent to cos
+        // add quarter max angle and then mask as sin is periodic
         return fastCossinTable[((-i) + QUARTER_COSSIN_BINS) & MASK_COSSIN_BINS];
     }
     else
     {
+        // cos(x) = sin(x + pi/2) so sin of value plus a quarter of max angle is equivalent to cos
+        // add quarter max angle and then mask as sin is periodic
         return fastCossinTable[(i + QUARTER_COSSIN_BINS) & MASK_COSSIN_BINS];
     }
 }
-
 
 /**
  * Computes linear piecewise approximation for arctangent function
@@ -273,12 +282,11 @@ int fastArcTan(int x, int y)
 int getThetaR(int thetaSum, int thetaDiff)
 {
     int thetaR;
-    __asm__ (
+    __asm__(
         "add %0, %1, %2\n\t"
         "asr %0, %0, #1\n\t"
-        : "=r" (thetaR)
-        : "r" (thetaSum) ,"r" (thetaDiff)
-        );
+        : "=r"(thetaR)
+        : "r"(thetaSum), "r"(thetaDiff));
     return thetaR;
 
     // int thetaR2 = thetaSum + thetaDiff;
@@ -299,12 +307,11 @@ int getThetaL(int thetaSum, int thetaDiff)
     // asr	r0, r0, #1
 
     int thetaL2;
-    __asm__ (
+    __asm__(
         "sub %0, %1, %2\n\t"
         "asr %0, %0, #1\n\t"
-        : "=r" (thetaL2)
-        : "r" (thetaSum) ,"r" (thetaDiff)
-        );
+        : "=r"(thetaL2)
+        : "r"(thetaSum), "r"(thetaDiff));
     return thetaL2;
 
     // int thetaL2 = thetaSum - thetaDiff;
@@ -346,10 +353,13 @@ int getThetaDiff(int subMatrix[subset_matrix_size][subset_matrix_size])
 */
 void getLMatrix(int thetaL, int L[subset_matrix_size][subset_matrix_size])
 {
-    L[0][0] = fastCos(thetaL);
-    L[0][1] = -fastSin(thetaL);
-    L[1][0] = fastSin(thetaL);
-    L[1][1] = fastCos(thetaL);
+    int cosTheta = fastCos(thetaL);
+    int sinTheta = fastSin(thetaL);
+
+    L[0][0] = cosTheta;
+    L[0][1] = -sinTheta;
+    L[1][0] = sinTheta;
+    L[1][1] = cosTheta;
 }
 
 /** 
@@ -360,10 +370,13 @@ void getLMatrix(int thetaL, int L[subset_matrix_size][subset_matrix_size])
 */
 void getRMatrix(int thetaR, int R[subset_matrix_size][subset_matrix_size])
 {
-    R[0][0] = fastCos(thetaR);
-    R[0][1] = -fastSin(thetaR);
-    R[1][0] = fastSin(thetaR);
-    R[1][1] = fastCos(thetaR);
+    int cosTheta = fastCos(thetaR);
+    int sinTheta = fastSin(thetaR);
+
+    R[0][0] = cosTheta;
+    R[0][1] = -sinTheta;
+    R[1][0] = sinTheta;
+    R[1][1] = cosTheta;
 }
 
 /** 
@@ -497,7 +510,7 @@ void iteration(int row_idx, int col_idx, int U[matrixSize][matrixSize], int V[ma
     int V_prime[matrixSize][matrixSize];
     matrixMultiply(V_iteration, V, V_prime); // V' = V_iteration & V
     memcpy(V, V_prime, sizeof(V_prime));     // V = V'
-    Transpose4x4(V_iteration);              // V_interation^T
+    Transpose4x4(V_iteration);               // V_interation^T
 
     // Update M
     int M_prime[matrixSize][matrixSize];
@@ -506,7 +519,7 @@ void iteration(int row_idx, int col_idx, int U[matrixSize][matrixSize], int V[ma
 
     // Update U
     int U_prime[matrixSize][matrixSize];
-    Transpose4x4(U_iteration);              // U_iteration^T
+    Transpose4x4(U_iteration);               // U_iteration^T
     matrixMultiply(U, U_iteration, U_prime); // U' = U * U_iteration^T
     memcpy(U, U_prime, sizeof(U_prime));     // U = U'
 }
@@ -545,7 +558,7 @@ int main(int argc, char *argv[])
     genIdentityMatrix(scaledV, 1 << 15);
     scaleMatrix(M, scaledM, scaleFactor);
     //The main loop. This is the implementation of the Cyclical Jacobi Method.
-    while (1) // 5 sweeps
+    while (1)
     {
 
         for (i ^= i; i < 3; i++) // 4 rows
