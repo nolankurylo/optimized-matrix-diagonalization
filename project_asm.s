@@ -11,15 +11,15 @@
 	.eabi_attribute 18, 4
 	.file	"seng440Project.c"
 	.text
-	.comm	fast_cossin_table,8192,4
+	.comm	fastCossinTable,8192,4
 	.align	2
-	.global	gen_M_matrix
+	.global	genMMatrix
 	.arch armv7-a
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	gen_M_matrix, %function
-gen_M_matrix:
+	.type	genMMatrix, %function
+genMMatrix:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
 	@ link register save eliminated.
@@ -108,14 +108,14 @@ gen_M_matrix:
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
-	.size	gen_M_matrix, .-gen_M_matrix
+	.size	genMMatrix, .-genMMatrix
 	.align	2
-	.global	gen_identity_matrix
+	.global	genIdentityMatrix
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	gen_identity_matrix, %function
-gen_identity_matrix:
+	.type	genIdentityMatrix, %function
+genIdentityMatrix:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
 	@ link register save eliminated.
@@ -174,14 +174,14 @@ gen_identity_matrix:
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
-	.size	gen_identity_matrix, .-gen_identity_matrix
+	.size	genIdentityMatrix, .-genIdentityMatrix
 	.align	2
-	.global	scale_matrix
+	.global	scaleMatrix
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	scale_matrix, %function
-scale_matrix:
+	.type	scaleMatrix, %function
+scaleMatrix:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{fp, lr}
@@ -242,14 +242,14 @@ scale_matrix:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-	.size	scale_matrix, .-scale_matrix
+	.size	scaleMatrix, .-scaleMatrix
 	.align	2
-	.global	un_scale_matrix
+	.global	unScaleMatrix
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	un_scale_matrix, %function
-un_scale_matrix:
+	.type	unScaleMatrix, %function
+unScaleMatrix:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
 	@ link register save eliminated.
@@ -304,19 +304,19 @@ un_scale_matrix:
 	@ sp needed
 	pop	{r4, r5, fp}
 	bx	lr
-	.size	un_scale_matrix, .-un_scale_matrix
+	.size	unScaleMatrix, .-unScaleMatrix
 	.section	.rodata
 	.align	2
 .LC0:
 	.ascii	"%f \000"
 	.text
 	.align	2
-	.global	print_matrix
+	.global	printMatrix
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	print_matrix, %function
-print_matrix:
+	.type	printMatrix, %function
+printMatrix:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{r4, r5, fp, lr}
@@ -360,19 +360,19 @@ print_matrix:
 	sub	sp, fp, #12
 	@ sp needed
 	pop	{r4, r5, fp, pc}
-	.size	print_matrix, .-print_matrix
+	.size	printMatrix, .-printMatrix
 	.section	.rodata
 	.align	2
 .LC1:
 	.ascii	"%d \000"
 	.text
 	.align	2
-	.global	print_matrix_int
+	.global	printMatrixInt
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	print_matrix_int, %function
-print_matrix_int:
+	.type	printMatrixInt, %function
+printMatrixInt:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{r4, r5, fp, lr}
@@ -415,14 +415,14 @@ print_matrix_int:
 	sub	sp, fp, #12
 	@ sp needed
 	pop	{r4, r5, fp, pc}
-	.size	print_matrix_int, .-print_matrix_int
+	.size	printMatrixInt, .-printMatrixInt
 	.align	2
-	.global	fastsin
+	.global	fastSin
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	fastsin, %function
-fastsin:
+	.type	fastSin, %function
+fastSin:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
 	@ link register save eliminated.
@@ -446,15 +446,15 @@ fastsin:
 	rsb	r3, r3, #0
 	ubfx	r3, r3, #0, #11
 	rsb	r2, r3, #2048
-	movw	r3, #:lower16:fast_cossin_table
-	movt	r3, #:upper16:fast_cossin_table
+	movw	r3, #:lower16:fastCossinTable
+	movt	r3, #:upper16:fastCossinTable
 	ldr	r3, [r3, r2, lsl #2]
 	b	.L33
 .L32:
 	ldr	r3, [fp, #-8]
 	ubfx	r2, r3, #0, #11
-	movw	r3, #:lower16:fast_cossin_table
-	movt	r3, #:upper16:fast_cossin_table
+	movw	r3, #:lower16:fastCossinTable
+	movt	r3, #:upper16:fastCossinTable
 	ldr	r3, [r3, r2, lsl #2]
 .L33:
 	mov	r0, r3
@@ -467,14 +467,14 @@ fastsin:
 .L34:
 	.word	1413754136
 	.word	1074340347
-	.size	fastsin, .-fastsin
+	.size	fastSin, .-fastSin
 	.align	2
-	.global	fastcos
+	.global	fastCos
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	fastcos, %function
-fastcos:
+	.type	fastCos, %function
+fastCos:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
 	@ link register save eliminated.
@@ -497,16 +497,16 @@ fastcos:
 	ldr	r3, [fp, #-8]
 	rsb	r3, r3, #512
 	ubfx	r2, r3, #0, #11
-	movw	r3, #:lower16:fast_cossin_table
-	movt	r3, #:upper16:fast_cossin_table
+	movw	r3, #:lower16:fastCossinTable
+	movt	r3, #:upper16:fastCossinTable
 	ldr	r3, [r3, r2, lsl #2]
 	b	.L38
 .L37:
 	ldr	r3, [fp, #-8]
 	add	r3, r3, #512
 	ubfx	r2, r3, #0, #11
-	movw	r3, #:lower16:fast_cossin_table
-	movt	r3, #:upper16:fast_cossin_table
+	movw	r3, #:lower16:fastCossinTable
+	movt	r3, #:upper16:fastCossinTable
 	ldr	r3, [r3, r2, lsl #2]
 .L38:
 	mov	r0, r3
@@ -519,7 +519,7 @@ fastcos:
 .L39:
 	.word	1413754136
 	.word	1074340347
-	.size	fastcos, .-fastcos
+	.size	fastCos, .-fastCos
 	.align	2
 	.global	piecewiseLinearApprox
 	.syntax unified
@@ -910,12 +910,12 @@ getLMatrix:
 	str	r0, [fp, #-16]
 	str	r1, [fp, #-20]
 	ldr	r0, [fp, #-16]
-	bl	fastcos
+	bl	fastCos
 	mov	r2, r0
 	ldr	r3, [fp, #-20]
 	str	r2, [r3]
 	ldr	r0, [fp, #-16]
-	bl	fastsin
+	bl	fastSin
 	mov	r3, r0
 	rsb	r2, r3, #0
 	ldr	r3, [fp, #-20]
@@ -923,13 +923,13 @@ getLMatrix:
 	ldr	r3, [fp, #-20]
 	add	r4, r3, #8
 	ldr	r0, [fp, #-16]
-	bl	fastsin
+	bl	fastSin
 	mov	r3, r0
 	str	r3, [r4]
 	ldr	r3, [fp, #-20]
 	add	r4, r3, #8
 	ldr	r0, [fp, #-16]
-	bl	fastcos
+	bl	fastCos
 	mov	r3, r0
 	str	r3, [r4, #4]
 	nop
@@ -952,12 +952,12 @@ getRMatrix:
 	str	r0, [fp, #-16]
 	str	r1, [fp, #-20]
 	ldr	r0, [fp, #-16]
-	bl	fastcos
+	bl	fastCos
 	mov	r2, r0
 	ldr	r3, [fp, #-20]
 	str	r2, [r3]
 	ldr	r0, [fp, #-16]
-	bl	fastsin
+	bl	fastSin
 	mov	r3, r0
 	rsb	r2, r3, #0
 	ldr	r3, [fp, #-20]
@@ -965,13 +965,13 @@ getRMatrix:
 	ldr	r3, [fp, #-20]
 	add	r4, r3, #8
 	ldr	r0, [fp, #-16]
-	bl	fastsin
+	bl	fastSin
 	mov	r3, r0
 	str	r3, [r4]
 	ldr	r3, [fp, #-20]
 	add	r4, r3, #8
 	ldr	r0, [fp, #-16]
-	bl	fastcos
+	bl	fastCos
 	mov	r3, r0
 	str	r3, [r4, #4]
 	nop
@@ -980,12 +980,12 @@ getRMatrix:
 	pop	{r4, fp, pc}
 	.size	getRMatrix, .-getRMatrix
 	.align	2
-	.global	Transpose_4x4
+	.global	Transpose4x4
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	Transpose_4x4, %function
-Transpose_4x4:
+	.type	Transpose4x4, %function
+Transpose4x4:
 	@ args = 0, pretend = 0, frame = 72
 	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{r4, r5, fp, lr}
@@ -1041,14 +1041,14 @@ Transpose_4x4:
 	sub	sp, fp, #12
 	@ sp needed
 	pop	{r4, r5, fp, pc}
-	.size	Transpose_4x4, .-Transpose_4x4
+	.size	Transpose4x4, .-Transpose4x4
 	.align	2
-	.global	Transpos_2x2
+	.global	Transpos2x2
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	Transpos_2x2, %function
-Transpos_2x2:
+	.type	Transpos2x2, %function
+Transpos2x2:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{r4, r5, fp, lr}
@@ -1104,7 +1104,7 @@ Transpos_2x2:
 	sub	sp, fp, #12
 	@ sp needed
 	pop	{r4, r5, fp, pc}
-	.size	Transpos_2x2, .-Transpos_2x2
+	.size	Transpos2x2, .-Transpos2x2
 	.align	2
 	.global	matrixMultiply
 	.syntax unified
@@ -1257,12 +1257,12 @@ matrixMultiply:
 	bx	lr
 	.size	matrixMultiply, .-matrixMultiply
 	.align	2
-	.global	sweep
+	.global	iteration
 	.syntax unified
 	.arm
 	.fpu vfpv3-d16
-	.type	sweep, %function
-sweep:
+	.type	iteration, %function
+iteration:
 	@ args = 4, pretend = 0, frame = 400
 	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{fp, lr}
@@ -1327,7 +1327,7 @@ sweep:
 	sub	r3, fp, #132
 	mov	r1, #32768
 	mov	r0, r3
-	bl	gen_identity_matrix
+	bl	genIdentityMatrix
 	ldr	r1, [fp, #-68]
 	ldr	r2, [fp, #-392]
 	mov	r3, r2
@@ -1369,7 +1369,7 @@ sweep:
 	sub	r3, fp, #196
 	mov	r1, #32768
 	mov	r0, r3
-	bl	gen_identity_matrix
+	bl	genIdentityMatrix
 	ldr	r1, [fp, #-52]
 	ldr	r2, [fp, #-392]
 	mov	r3, r2
@@ -1420,7 +1420,7 @@ sweep:
 	bl	memcpy
 	sub	r3, fp, #196
 	mov	r0, r3
-	bl	Transpose_4x4
+	bl	Transpose4x4
 	sub	r2, fp, #324
 	sub	r3, fp, #132
 	ldr	r1, [fp, #4]
@@ -1433,7 +1433,7 @@ sweep:
 	bl	matrixMultiply
 	sub	r3, fp, #132
 	mov	r0, r3
-	bl	Transpose_4x4
+	bl	Transpose4x4
 	sub	r2, fp, #388
 	sub	r3, fp, #132
 	mov	r1, r3
@@ -1448,7 +1448,7 @@ sweep:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-	.size	sweep, .-sweep
+	.size	iteration, .-iteration
 	.section	.rodata
 	.align	2
 .LC2:
@@ -1479,7 +1479,7 @@ main:
 	str	r1, [fp, #-476]
 	sub	r3, fp, #212
 	mov	r0, r3
-	bl	gen_M_matrix
+	bl	genMMatrix
 	sub	ip, fp, #276
 	sub	lr, fp, #212
 	ldmia	lr!, {r0, r1, r2, r3}
@@ -1495,7 +1495,7 @@ main:
 	bl	puts
 	sub	r3, fp, #276
 	mov	r0, r3
-	bl	print_matrix
+	bl	printMatrix
 	mov	r3, #256
 	str	r3, [fp, #-20]
 	mov	r3, #0
@@ -1516,8 +1516,8 @@ main:
 	vmul.f64	d7, d6, d7
 	vcvt.s32.f64	s15, d7
 	vmov	r1, s15	@ int
-	movw	r3, #:lower16:fast_cossin_table
-	movt	r3, #:upper16:fast_cossin_table
+	movw	r3, #:lower16:fastCossinTable
+	movt	r3, #:upper16:fastCossinTable
 	ldr	r2, [fp, #-8]
 	str	r1, [r3, r2, lsl #2]
 	ldr	r3, [fp, #-8]
@@ -1530,16 +1530,16 @@ main:
 	sub	r3, fp, #404
 	mov	r1, #32768
 	mov	r0, r3
-	bl	gen_identity_matrix
+	bl	genIdentityMatrix
 	sub	r3, fp, #468
 	mov	r1, #32768
 	mov	r0, r3
-	bl	gen_identity_matrix
+	bl	genIdentityMatrix
 	sub	r1, fp, #340
 	sub	r3, fp, #212
 	ldr	r2, [fp, #-20]
 	mov	r0, r3
-	bl	scale_matrix
+	bl	scaleMatrix
 .L100:
 	mov	r3, #0
 	str	r3, [fp, #-8]
@@ -1557,7 +1557,7 @@ main:
 	mov	r3, r1
 	ldr	r1, [fp, #-12]
 	ldr	r0, [fp, #-8]
-	bl	sweep
+	bl	iteration
 	ldr	r3, [fp, #-12]
 	add	r3, r3, #1
 	str	r3, [fp, #-12]
@@ -1629,40 +1629,40 @@ main:
 	nop
 	sub	r3, fp, #468
 	mov	r0, r3
-	bl	Transpose_4x4
+	bl	Transpose4x4
 	sub	r1, fp, #340
 	sub	r3, fp, #212
 	mov	r2, #8
 	mov	r0, r3
-	bl	un_scale_matrix
+	bl	unScaleMatrix
 	sub	r1, fp, #404
 	sub	r3, fp, #84
 	mov	r2, #15
 	mov	r0, r3
-	bl	un_scale_matrix
+	bl	unScaleMatrix
 	sub	r1, fp, #468
 	sub	r3, fp, #148
 	mov	r2, #15
 	mov	r0, r3
-	bl	un_scale_matrix
+	bl	unScaleMatrix
 	movw	r0, #:lower16:.LC3
 	movt	r0, #:upper16:.LC3
 	bl	puts
 	sub	r3, fp, #212
 	mov	r0, r3
-	bl	print_matrix
+	bl	printMatrix
 	movw	r0, #:lower16:.LC4
 	movt	r0, #:upper16:.LC4
 	bl	puts
 	sub	r3, fp, #84
 	mov	r0, r3
-	bl	print_matrix
+	bl	printMatrix
 	movw	r0, #:lower16:.LC5
 	movt	r0, #:upper16:.LC5
 	bl	puts
 	sub	r3, fp, #148
 	mov	r0, r3
-	bl	print_matrix
+	bl	printMatrix
 	mov	r3, #0
 	mov	r0, r3
 	sub	sp, fp, #4
