@@ -272,18 +272,18 @@ int fastArcTan(int x, int y)
 */
 int getThetaR(int thetaSum, int thetaDiff)
 {
-    int thetaR;
-    __asm__ (
-        "add %0, %1, %2\n\t"
-        "asr %0, %0, #1\n\t"
-        : "=r" (thetaR)
-        : "r" (thetaSum) ,"r" (thetaDiff)
-        );
-    return thetaR;
+    // int thetaR;
+    // __asm__ (
+    //     "add %0, %1, %2\n\t"
+    //     "asr %0, %0, #1\n\t"
+    //     : "=r" (thetaR)
+    //     : "r" (thetaSum) ,"r" (thetaDiff)
+    //     );
+    // return thetaR;
 
-    // int thetaR2 = thetaSum + thetaDiff;
+    int thetaR2 = thetaSum + thetaDiff;
 
-    // return thetaR2 >> 1;
+    return thetaR2 / 2;
 }
 
 /** 
