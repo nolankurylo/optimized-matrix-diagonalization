@@ -770,18 +770,14 @@ getThetaR:
 	sub	sp, sp, #20
 	str	r0, [fp, #-16]
 	str	r1, [fp, #-20]
-	ldr	r3, [fp, #-16]
-	ldr	r2, [fp, #-20]
-	.syntax divided
-@ 276 "seng440Project.c" 1
-	add r3, r3, r2
-	asr r3, r3, #1
-	
-@ 0 "" 2
-	.arm
-	.syntax unified
+	ldr	r2, [fp, #-16]
+	ldr	r3, [fp, #-20]
+	add	r3, r2, r3
 	str	r3, [fp, #-8]
 	ldr	r3, [fp, #-8]
+	lsr	r2, r3, #31
+	add	r3, r2, r3
+	asr	r3, r3, #1
 	mov	r0, r3
 	add	sp, fp, #0
 	@ sp needed
