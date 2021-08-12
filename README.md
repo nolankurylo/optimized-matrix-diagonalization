@@ -51,6 +51,7 @@ M =\
 34 16 38 -19
 
 The expected output after the SVD matrix diagonalization is:\
+
 SIGMA =\
 85.570 0 0 0 \
 0 126.429 0 0 \
@@ -58,6 +59,8 @@ SIGMA =\
 0 0 0 34.008 
 
 The actual output after our optimized implementation of SVD matrix diagonalization is:\
+
+SIGMA =\
 85.480469 0.359375 -0.082031 -0.363281 \
 -0.207031 126.375000 -0.277344 -0.234375 \
 0.183594 -0.136719 -110.894531 0.101562 \
