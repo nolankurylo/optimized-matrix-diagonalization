@@ -281,6 +281,11 @@ int fastArcTan(int x, int y)
 */
 int getThetaR(int thetaSum, int thetaDiff)
 {
+    // Code before assembly inlining
+    // int thetaR = thetaSum + thetaDiff;
+    // return thetaR / 2;
+    
+    // Code after assembly inlining
     int thetaR;
     __asm__(
         "add %0, %1, %2\n\t"
@@ -289,9 +294,7 @@ int getThetaR(int thetaSum, int thetaDiff)
         : "r"(thetaSum), "r"(thetaDiff));
     return thetaR;
 
-    // int thetaR2 = thetaSum + thetaDiff;
-
-    // return thetaR2 >> 1;
+    
 }
 
 /** 
@@ -302,20 +305,20 @@ int getThetaR(int thetaSum, int thetaDiff)
 */
 int getThetaL(int thetaSum, int thetaDiff)
 {
-
-    // add	r0, r0, r1
-    // asr	r0, r0, #1
-
-    int thetaL2;
+    // Code before assembly inlining
+    // int thetaL2 = thetaSum - thetaDiff;
+    // return thetaL2 / 2;
+   
+    // Code after assembly inlining
+    int thetaL;
     __asm__(
         "sub %0, %1, %2\n\t"
         "asr %0, %0, #1\n\t"
-        : "=r"(thetaL2)
+        : "=r"(thetaL)
         : "r"(thetaSum), "r"(thetaDiff));
-    return thetaL2;
+    return thetaL;
 
-    // int thetaL2 = thetaSum - thetaDiff;
-    // return thetaL2 >> 1;
+   
 }
 
 /** 
