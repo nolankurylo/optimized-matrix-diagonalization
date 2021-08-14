@@ -37,12 +37,12 @@ To generate an assembly exececutable, execute command:\
 
 ### Execution
 
-After compiling, there should be a `project` executable in the current directory of the VM.\ 
-To run the application, execute command:\
+After compiling, there should be a `project` executable in the current directory of the VM.
+To run the application, execute command: \
 `./project`
 
 As this is a development project with the purpose of algorithm implementation, the matrix used to demonstrate the functionality of the algorithm is hard coded into the program.
-The 4x4 matrix M used is as follows:
+The 4x4 matrix M used for the SVD is as follows:
 
 M =\
 31 77 -11 26 \
@@ -50,7 +50,7 @@ M =\
 -68 -10 45 90 \
 34 16 38 -19
 
-The expected output after the SVD matrix diagonalization is:\
+The expected output after the SVD matrix diagonalization is:
 
 SIGMA =\
 85.570 0 0 0 \
@@ -58,7 +58,7 @@ SIGMA =\
 0 0 −110.905 0 \
 0 0 0 34.008 
 
-The actual output after our optimized implementation of SVD matrix diagonalization is:\
+The actual output after our optimized implementation of SVD matrix diagonalization is:
 
 SIGMA =\
 85.480469 0.359375 -0.082031 -0.363281 \
