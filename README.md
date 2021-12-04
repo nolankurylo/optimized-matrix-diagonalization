@@ -1,6 +1,6 @@
 # Optimized SVD for Matrix Diagonalization
 
-This project shows how the Singular Value Decomposition algorithm can be optimized for matrix diagonalization on a ARM microcontroller. This optimzation is necessary as it microcontrollers have limited memory and CPU power so it is imperative that every line of code is as optimized as possible. This was a term-long project for the Design Project I course - SENG 440 Embedded Systems.
+This project shows how the Singular Value Decomposition algorithm can be optimized for matrix diagonalization on an ARM microcontroller. This optimzation is necessary as microcontrollers have limited memory and CPU power so it is imperative that every line of code is as optimized as possible. This was a term-long project for the Design Project I course - SENG 440 Embedded Systems.
 
 As this is a development project with the purpose of algorithm implementation, the matrix used to demonstrate the functionality of the algorithm is hard coded into the program.
 The 4x4 matrix M used for the SVD is as follows:
